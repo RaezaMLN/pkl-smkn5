@@ -32,7 +32,7 @@ export default function Home() {
 
   {/* Logo utama */}
   <Image
-    src="/sekolah.png"
+    src="/Sekolah.png"
     alt="Logo SMKN 5"
     className="w-24 sm:w-[120px] h-auto object-contain"
     width={120}
