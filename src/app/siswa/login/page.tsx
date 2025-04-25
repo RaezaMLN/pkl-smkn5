@@ -62,7 +62,7 @@ export default function SiswaLoginPage() {
         className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 w-full max-w-md"
       >
         <div className="flex flex-col items-center mb-6">
-          <Image src="/sekolah.png" alt="Logo SMKN 5" width={80} height={80} />
+          <Image src="/Sekolah.png" alt="Logo SMKN 5" width={80} height={80} />
           <h1 className="text-2xl font-bold text-blue-800 dark:text-white mt-2">
             Login Siswa
           </h1>
