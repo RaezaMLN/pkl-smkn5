@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 // Metadata untuk seluruh aplikasi
 export const metadata: Metadata = {
-  title: "My PKL App",
+  title: "PKL SMKN 5 TELKOM BANDA ACEH",
   description: "Aplikasi pendaftaran PKL siswa SMK",
 };
 
