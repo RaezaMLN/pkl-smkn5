@@ -17,6 +17,7 @@ const RegisterPage = () => {
     alamat: "",
     kelas: "",
     jurusan: "",
+    wali: "",
     password: "",
     konfirmasi: "",
   });
@@ -52,6 +53,7 @@ const RegisterPage = () => {
       "alamat",
       "kelas",
       "jurusan",
+      "wali",
       "password",
     ];
 
@@ -139,9 +141,9 @@ const RegisterPage = () => {
             className="px-4 py-2 border border-gray-300 rounded-md"
             required
           >
-            <option value="">Pilih Gender</option>
-            <option value="L">Laki-Laki</option>
-            <option value="P">Perempuan</option>
+            <option value="">Pilih Jenis Kelamin</option>
+            <option value="Laki-laki">Laki-Laki</option>
+            <option value="Perempuan">Perempuan</option>
           </select>
           <input
             type="text"
@@ -160,21 +162,43 @@ const RegisterPage = () => {
             className="px-4 py-2 border border-gray-300 rounded-md"
             required
           ></textarea>
-          <input
-            type="text"
+        
+          <select
             name="kelas"
             value={formData.kelas}
             onChange={handleChange}
-            placeholder="Kelas"
             className="px-4 py-2 border border-gray-300 rounded-md"
-            required
-          />
-          <input
-            type="text"
+            required>
+            <option value="">Pilih kelas</option>
+            <option value="XII RPL 1">XII RPL 1</option>
+            <option value="XII RPL 2">XII RPL 2</option>
+            <option value="XII RPL 3">XII RPL 3</option>
+            <option value="XII TJKT 1">XII TJKT 1</option>
+            <option value="XII TJKT 2">XII TJKT 2</option>
+            <option value="XII TJKT 3">XII TJKT 3</option>
+            <option value="XII TJAT">XII TJAT</option>
+            <option value="XII PF 1">XII PF 1</option>
+            <option value="XII PF 2">XII PF 2</option>
+          </select>
+      
+          <select
             name="jurusan"
             value={formData.jurusan}
             onChange={handleChange}
-            placeholder="Jurusan"
+            className="px-4 py-2 border border-gray-300 rounded-md"
+            required>
+            <option value="">Pilih jurusan</option>
+            <option value="Rekaysa Perangkat Lunak">RPL</option>
+            <option value="Teknik Jaringan Akses Telekomunikasi">TJAT</option>
+            <option value="Teknik Jaringan Komputer Telekomunikasi">TJKT</option>
+            <option value="Produksi Film">PF</option>
+          </select>
+          <input
+            type="text"
+            name="wali"
+            value={formData.wali}
+            onChange={handleChange}
+            placeholder="Nama Lengkap Orang tua / Wali"
             className="px-4 py-2 border border-gray-300 rounded-md"
             required
           />

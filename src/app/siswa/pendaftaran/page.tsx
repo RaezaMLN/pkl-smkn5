@@ -14,7 +14,9 @@ import {
   arrayUnion,
 } from 'firebase/firestore';
 import { Card } from '@/components/ui/Card';
-import PendaftaranModal from '@/components/siswa/PendaftaranModal'; // sesuaikan path
+import PendaftaranModal from '@/components/siswa/PendaftaranModal'; 
+import SiswaTerdaftarModal from "@/components/siswa/SiswaTerdaftarModal"
+
 
 
 interface Company {
@@ -39,6 +41,14 @@ export default function DaftarPkl() {
   // modal 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedPerusahaanId, setSelectedPerusahaanId] = useState<string | null>(null);
+
+  const handleLihatSiswa = (perusahaanId: string) => {
+  setSelectedPerusahaanId(perusahaanId);
+  setModalOpen(true);
+};
+
 
 
   useEffect(() => {
@@ -197,6 +207,12 @@ export default function DaftarPkl() {
               <p>📍 <span className="font-medium">{company.alamat}</span></p>
               <p>💼 <span className="font-medium">{company.bidang}</span></p>
               <p>📞 <span className="font-medium">{company.kontak}</span></p>
+              <button
+                  onClick={() => handleLihatSiswa(company.id)}
+                  className="text-blue-600 hover:underline"
+                >
+                  Lihat Siswa Terdaftar
+                </button>
             </div>
             <div className="mt-3">
               <p
@@ -244,6 +260,12 @@ export default function DaftarPkl() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         selectedCompany={selectedCompany}
+      />
+
+      <SiswaTerdaftarModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        perusahaanId={selectedPerusahaanId}
       />
     </div>
   );

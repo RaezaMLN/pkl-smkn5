@@ -6,11 +6,11 @@ import { collection, query, where, getDocs, doc, getDoc } from "firebase/firesto
 import Link from "next/link";
 
 interface Perusahaan {
-  nama_perusahaan: string;
+  nama: string;
   alamat: string;
   kontak: string;
-  tanggalMulai: string;
-  tanggalSelesai: string;
+  bidang: string;
+
 }
 
 interface PendaftaranData {
@@ -69,6 +69,7 @@ const SiswaDashboardPage = () => {
 
   if (loading) return <div className="p-4">Loading...</div>;
   if (!siswa) return <div className="p-4 text-red-600">Data tidak ditemukan.</div>;
+  console.log(perusahaan)
 
   return (
     <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen text-gray-800 dark:text-white">
@@ -88,7 +89,7 @@ const SiswaDashboardPage = () => {
           <h2 className="text-xl font-semibold mb-4">Pendaftaran PKL</h2>
           {pendaftaran && perusahaan ? (
             <div>
-              <p className="text-green-600">Anda sudah mendaftar untuk PKL di {perusahaan.nama_perusahaan}</p>
+              <p className="text-green-600 text-start">Anda sudah mendaftar untuk PKL di <br/><span className="text-2xl text-blue-600">{perusahaan.nama}</span> </p>
             </div>
           ) : (
             <Link href="/siswa/pendaftaran">
@@ -102,10 +103,10 @@ const SiswaDashboardPage = () => {
         {perusahaan && (
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
             <h2 className="text-xl font-semibold mb-4">Tempat PKL</h2>
-            <p><strong>Perusahaan:</strong> {perusahaan.nama_perusahaan}</p>
+            <p><strong>Perusahaan:</strong> {perusahaan.nama}</p>
+            <p><strong>bidang:</strong> {perusahaan.bidang}</p>
             <p><strong>Alamat:</strong> {perusahaan.alamat}</p>
             <p><strong>Kontak:</strong> {perusahaan.kontak}</p>
-            <p><strong>Periode:</strong> {perusahaan.tanggalMulai} - {perusahaan.tanggalSelesai}</p>
           </div>
         )}
 

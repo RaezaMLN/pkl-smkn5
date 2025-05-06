@@ -12,7 +12,7 @@ export default function Navbar() {
 
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("userEmail");
+    localStorage.removeItem("siswa");
     router.replace("/siswa/login");
   };
 

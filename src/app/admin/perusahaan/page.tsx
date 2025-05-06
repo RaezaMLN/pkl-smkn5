@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import SiswaTerdaftarModal from "@/components/siswa/SiswaTerdaftarModal"
 
 interface Perusahaan {
   id: string;
@@ -30,6 +31,13 @@ const PerusahaanPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [searchQuery, setSearchQuery] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedPerusahaanId, setSelectedPerusahaanId] = useState<string | null>(null);
+
+  const handleLihatSiswa = (perusahaanId: string) => {
+  setSelectedPerusahaanId(perusahaanId);
+  setModalOpen(true);
+};
 
   const fetchPerusahaan = async () => {
     try {
@@ -249,6 +257,14 @@ const PerusahaanPage = () => {
                 <td className="px-4 py-2">{per.kontak}</td>
                 <td className="px-4 py-2">{per.kuota}</td>
                 <td className="px-4 py-2 flex space-x-2">
+                  {/* Di dalam tabel daftar perusahaan */}
+                <button
+                  onClick={() => handleLihatSiswa(per.id)}
+                  className="text-blue-600 hover:underline"
+                >
+                  Lihat Siswa
+                </button>
+
                   <button
                     onClick={() => handleEdit(per.id, per.nama, per.alamat, per.bidang, per.kontak, per.kuota)}
                     className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
@@ -328,6 +344,13 @@ const PerusahaanPage = () => {
           </div>
         </div>
       )}
+
+<SiswaTerdaftarModal
+  isOpen={modalOpen}
+  onClose={() => setModalOpen(false)}
+  perusahaanId={selectedPerusahaanId}
+/>
+
     </div>
   );
 };
