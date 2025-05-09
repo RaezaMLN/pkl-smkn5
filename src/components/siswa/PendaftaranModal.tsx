@@ -71,6 +71,7 @@ const PendaftaranModal = ({
         status: "pending",
         tanggal_daftar: Timestamp.fromDate(new Date()),
       });
+      
       alert("Pendaftaran berhasil.");
       onClose();
     } catch (error) {

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -72,20 +73,23 @@ export default function Home() {
         transition={{ delay: 0.3, duration: 0.8 }}
         className="flex flex-col items-center gap-6 text-center mt-16"
       >
+        <Link href="/dudi" className="inline-block bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transform hover:scale-105">
+          Lihat Tempat PKL yang Tersedia
+        </Link>
         <div className="text-xl font-medium text-blue-700 dark:text-blue-300">Selamat Datang di Portal E-PKL</div>
         <div className="flex gap-4 flex-wrap justify-center">
-          <a
+          <Link
             href="/siswa/login"
             className="bg-blue-600 text-white px-6 py-3 rounded-full text-sm font-semibold shadow hover:bg-blue-700 transition-transform transform hover:scale-105"
           >
             Masuk
-          </a>
-          <a
+          </Link>
+          <Link
             href="siswa/register"
             className="bg-green-600 text-white px-6 py-3 rounded-full text-sm font-semibold shadow hover:bg-green-700 transition-transform transform hover:scale-105"
           >
             Daftar
-          </a>
+          </Link>
          
         </div>
       </motion.main>

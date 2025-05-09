@@ -1,5 +1,5 @@
 "use client"
-
+import Link from "next/link";
 import { useState } from "react";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -232,9 +232,9 @@ const RegisterPage = () => {
         <div className="mt-4 text-center">
           <p className="text-sm text-gray-600 dark:text-gray-300">
             Sudah punya akun?{" "}
-            <a href="/siswa/login" className="text-blue-600 hover:underline">
+            <Link href="/siswa/login" className="text-blue-600 hover:underline">
               Masuk
-            </a>
+            </Link>
           </p>
         </div>
       </motion.form>

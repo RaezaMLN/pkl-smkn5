@@ -14,8 +14,8 @@ import {
   arrayUnion,
 } from 'firebase/firestore';
 import { Card } from '@/components/ui/Card';
-import PendaftaranModal from '@/components/siswa/PendaftaranModal'; 
 import SiswaTerdaftarModal from "@/components/siswa/SiswaTerdaftarModal"
+import Navbar from '@/components/Navbar';
 
 
 
@@ -29,7 +29,7 @@ interface Company {
   siswa_terdaftar: string[];
 }
 
-export default function DaftarPkl() {
+export default function ListDudi() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [filteredCompanies, setFilteredCompanies] = useState<Company[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -37,10 +37,6 @@ export default function DaftarPkl() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(6);
   const [uniqueBidang, setUniqueBidang] = useState<string[]>([]);
-  const [siswaSudahDaftar, setSiswaSudahDaftar] = useState<string[]>([]);
-  const [siswaSudahPernahDaftar, setSiswaSudahPernahDaftar] = useState(false);
-
-
 
   // modal 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,47 +48,6 @@ export default function DaftarPkl() {
   setSelectedPerusahaanId(perusahaanId);
   setModalOpen(true);
 };
-useEffect(() => {
-  const fetchPendaftaranSiswa = async () => {
-    const siswa = JSON.parse(localStorage.getItem('siswa') || '{}');
-    const siswaId = siswa.id;
-    if (!siswaId) {
-      console.log('❌ siswa.id tidak ditemukan');
-      return;
-    }
-
-    const snapshot = await getDocs(collection(db, 'pendaftaran'));
-    const daftar = snapshot.docs
-      .map(doc => doc.data())
-      .filter((d: any) => d.siswa_id === siswaId)
-      .map((d: any) => d.perusahaan_id); // ambil hanya perusahaan_id
-
-    console.log('✅ ID perusahaan yang sudah didaftarkan siswa ini:', daftar);
-    setSiswaSudahDaftar(daftar);
-  };
-
-  fetchPendaftaranSiswa();
-}, []);
-
-useEffect(() => {
-  const checkIfSiswaSudahDaftar = async () => {
-    const siswa = JSON.parse(localStorage.getItem('siswa') || '{}');
-    const siswaId = siswa.id;
-    if (!siswaId) {
-      console.log('❌ siswa.id tidak ditemukan');
-      return;
-    }
-
-    const snapshot = await getDocs(collection(db, 'pendaftaran'));
-    const sudahDaftar = snapshot.docs.some(doc => doc.data().siswa_id === siswaId);
-
-    setSiswaSudahPernahDaftar(sudahDaftar);
-  };
-
-  checkIfSiswaSudahDaftar();
-}, []);
-
-
 
 
 
@@ -149,6 +104,7 @@ useEffect(() => {
     }
   };
 
+  
 
   // Pagination logic
   const totalPages = Math.ceil(filteredCompanies.length / itemsPerPage);
@@ -158,7 +114,10 @@ useEffect(() => {
   );
 
   return (
-    <div className="p-6">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-100 via-blue-100 to-blue-200">  
+    <Navbar />
+    <div className="p-12">
+         
       {/* Search & Filter */}
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <input
@@ -214,6 +173,7 @@ useEffect(() => {
                   Lihat Siswa Terdaftar
                 </button>
             </div>
+           
             <div className="mt-3">
               <p
                 className={`text-sm font-semibold ${
@@ -223,18 +183,6 @@ useEffect(() => {
                 Kuota: {company.kuota} siswa
               </p>
             </div>
-            <button
-  className="mt-4 bg-blue-500 text-white py-2 px-6 rounded-full hover:bg-blue-600 w-full disabled:bg-gray-400"
-  onClick={() => openModal(company.id)}
-  disabled={company.kuota <= 0 || siswaSudahPernahDaftar}
->
-  {company.kuota <= 0
-    ? 'Kuota Penuh'
-    : siswaSudahPernahDaftar
-    ? 'Sudah Mendaftar'
-    : 'Daftar Sekarang'}
-</button>
-
           </Card>
         ))}
       </div>
@@ -260,24 +208,14 @@ useEffect(() => {
         </button>
       </div>
 
-      {/* Modal */}
-      <PendaftaranModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        selectedCompany={selectedCompany}
-        // onSuccess={() => {
-        //   fetchPendaftaranSiswa();
-        //   checkIfSiswaSudahDaftar();
-        //   fetchCompanies();
-        // }}
-        
-      />
+   
 
       <SiswaTerdaftarModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         perusahaanId={selectedPerusahaanId}
       />
+    </div>
     </div>
   );
 }
