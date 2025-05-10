@@ -52,52 +52,49 @@ export default function DaftarPkl() {
   setSelectedPerusahaanId(perusahaanId);
   setModalOpen(true);
 };
+
+
+const fetchPendaftaranSiswa = async () => {
+  const siswa = JSON.parse(localStorage.getItem('siswa') || '{}');
+  const siswaId = siswa.id;
+  if (!siswaId) {
+    console.log('❌ siswa.id tidak ditemukan');
+    return;
+  }
+
+  const snapshot = await getDocs(collection(db, 'pendaftaran'));
+  const daftar = snapshot.docs
+    .map(doc => doc.data())
+    .filter((d: any) => d.siswa_id === siswaId)
+    .map((d: any) => d.perusahaan_id); // ambil hanya perusahaan_id
+
+  console.log('✅ ID perusahaan yang sudah didaftarkan siswa ini:', daftar);
+  setSiswaSudahDaftar(daftar);
+};
+
 useEffect(() => {
-  const fetchPendaftaranSiswa = async () => {
-    const siswa = JSON.parse(localStorage.getItem('siswa') || '{}');
-    const siswaId = siswa.id;
-    if (!siswaId) {
-      console.log('❌ siswa.id tidak ditemukan');
-      return;
-    }
-
-    const snapshot = await getDocs(collection(db, 'pendaftaran'));
-    const daftar = snapshot.docs
-      .map(doc => doc.data())
-      .filter((d: any) => d.siswa_id === siswaId)
-      .map((d: any) => d.perusahaan_id); // ambil hanya perusahaan_id
-
-    console.log('✅ ID perusahaan yang sudah didaftarkan siswa ini:', daftar);
-    setSiswaSudahDaftar(daftar);
-  };
-
   fetchPendaftaranSiswa();
 }, []);
 
+
+const checkIfSiswaSudahDaftar = async () => {
+  const siswa = JSON.parse(localStorage.getItem('siswa') || '{}');
+  const siswaId = siswa.id;
+  if (!siswaId) {
+    console.log('❌ siswa.id tidak ditemukan');
+    return;
+  }
+
+  const snapshot = await getDocs(collection(db, 'pendaftaran'));
+  const sudahDaftar = snapshot.docs.some(doc => doc.data().siswa_id === siswaId);
+
+  setSiswaSudahPernahDaftar(sudahDaftar);
+};
 useEffect(() => {
-  const checkIfSiswaSudahDaftar = async () => {
-    const siswa = JSON.parse(localStorage.getItem('siswa') || '{}');
-    const siswaId = siswa.id;
-    if (!siswaId) {
-      console.log('❌ siswa.id tidak ditemukan');
-      return;
-    }
-
-    const snapshot = await getDocs(collection(db, 'pendaftaran'));
-    const sudahDaftar = snapshot.docs.some(doc => doc.data().siswa_id === siswaId);
-
-    setSiswaSudahPernahDaftar(sudahDaftar);
-  };
-
   checkIfSiswaSudahDaftar();
 }, []);
 
-
-
-
-
-  useEffect(() => {
-    const fetchCompanies = async () => {
+ const fetchCompanies = async () => {
       const companiesCollection = collection(db, 'perusahaan');
       const companySnapshot = await getDocs(companiesCollection);
       const companiesList = companySnapshot.docs.map((doc) => ({
@@ -112,6 +109,7 @@ useEffect(() => {
       setUniqueBidang(bidangList);
     };
 
+  useEffect(() => {
     fetchCompanies();
   }, []);
 
@@ -265,11 +263,11 @@ useEffect(() => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         selectedCompany={selectedCompany}
-        // onSuccess={() => {
-        //   fetchPendaftaranSiswa();
-        //   checkIfSiswaSudahDaftar();
-        //   fetchCompanies();
-        // }}
+        onSuccess={() => {
+          fetchPendaftaranSiswa();
+          checkIfSiswaSudahDaftar();
+          fetchCompanies();
+        }}
         
       />
 

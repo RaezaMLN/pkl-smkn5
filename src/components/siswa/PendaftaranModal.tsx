@@ -24,10 +24,12 @@ interface PerusahaanData {
 const PendaftaranModal = ({
   isOpen,
   onClose,
+  onSuccess,
   selectedCompany,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void; // Tambahkan ini
   selectedCompany: PerusahaanData | null;
 }) => {
   const [loading, setLoading] = useState(false);
@@ -73,6 +75,7 @@ const PendaftaranModal = ({
       });
       
       alert("Pendaftaran berhasil.");
+      if (onSuccess) onSuccess(); // ← tambahkan ini
       onClose();
     } catch (error) {
       console.error("Error saat menyimpan data pendaftaran:", error);
