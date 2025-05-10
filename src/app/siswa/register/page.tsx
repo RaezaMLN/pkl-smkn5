@@ -17,7 +17,6 @@ const RegisterPage = () => {
     alamat: "",
     kelas: "",
     jurusan: "",
-    wali: "",
     password: "",
     konfirmasi: "",
   });
@@ -53,7 +52,6 @@ const RegisterPage = () => {
       "alamat",
       "kelas",
       "jurusan",
-      "wali",
       "password",
     ];
 
@@ -187,21 +185,13 @@ const RegisterPage = () => {
             onChange={handleChange}
             className="px-4 py-2 border border-gray-300 rounded-md"
             required>
-            <option value="">Pilih jurusan</option>
+            <option value="">Pilih Kompetensi Keahlian</option>
             <option value="Rekaysa Perangkat Lunak">RPL</option>
             <option value="Teknik Jaringan Akses Telekomunikasi">TJAT</option>
             <option value="Teknik Jaringan Komputer Telekomunikasi">TJKT</option>
             <option value="Produksi Film">PF</option>
           </select>
-          <input
-            type="text"
-            name="wali"
-            value={formData.wali}
-            onChange={handleChange}
-            placeholder="Nama Lengkap Orang tua / Wali"
-            className="px-4 py-2 border border-gray-300 rounded-md"
-            required
-          />
+        
           <input
             type="password"
             name="password"

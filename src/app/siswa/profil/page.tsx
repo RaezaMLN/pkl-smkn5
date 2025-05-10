@@ -14,7 +14,21 @@ interface SiswaProfile {
   alamat: string;
   kelas: string;
   jurusan: string;
+
   password: string;
+  // penambahan
+  wali: string;
+  no_wali: string;
+  ibu: string;
+  no_ibu: string;
+  ayah: string;
+  no_ayah: string;
+  alamat_ortu: string;
+  agama: string;
+  kewarganegaraan: string;
+  pendidikan: string;
+  keterampilan_teknis: string;
+  keterampilan_nonteknis: string;
 }
 
 export default function ProfilSiswa() {
@@ -32,6 +46,18 @@ export default function ProfilSiswa() {
     alamat: '',
     kelas: '',
     jurusan: '',
+    wali: '',
+    no_wali: '',
+    ayah: '',
+    no_ayah: '',
+    ibu: '',
+    no_ibu: '',
+    alamat_ortu: '',
+    agama: '',
+    kewarganegaraan: '',
+    pendidikan: '',
+    keterampilan_teknis: '',
+    keterampilan_nonteknis: '',
   });
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
@@ -39,7 +65,7 @@ export default function ProfilSiswa() {
   useEffect(() => {
     const siswaData = localStorage.getItem('siswa');
     const storedDocId = siswaData ? JSON.parse(siswaData).id : null;
-    
+
     if (storedDocId) {
       const fetchProfile = async () => {
         const profileDocRef = doc(db, 'siswa', storedDocId);
@@ -57,6 +83,18 @@ export default function ProfilSiswa() {
             alamat: data.alamat,
             kelas: data.kelas,
             jurusan: data.jurusan,
+            wali: data.wali,
+            no_wali: data.no_wali,
+            ayah: data.ayah,
+            no_ayah: data.no_ayah,
+            ibu: data.ibu,
+            no_ibu: data.no_ibu,
+            alamat_ortu: data.alamat_ortu,
+            agama: data.agama,
+            kewarganegaraan: data.kewarganegaraan,
+            pendidikan: data.pendidikan,
+            keterampilan_teknis: data.keterampilan_teknis,
+            keterampilan_nonteknis: data.keterampilan_nonteknis,
           });
         }
       };
@@ -64,7 +102,7 @@ export default function ProfilSiswa() {
     }
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -72,7 +110,7 @@ export default function ProfilSiswa() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     const siswaData = localStorage.getItem('siswa');
     const storedDocId = siswaData ? JSON.parse(siswaData).id : null;
     if (storedDocId) {
@@ -118,19 +156,42 @@ export default function ProfilSiswa() {
       {profile ? (
         <>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {[{ id: 'nama', label: 'Nama' }, { id: 'nisn', label: 'NISN' }, { id: 'email', label: 'Email' }, { id: 'hp', label: 'No. HP' }, { id: 'gender', label: 'Jenis Kelamin' }, { id: 'ttl', label: 'Tempat, Tanggal Lahir' }, { id: 'alamat', label: 'Alamat' }, { id: 'kelas', label: 'Kelas' }, { id: 'jurusan', label: 'Jurusan' }].map((field) => (
-              <div key={field.id}>
-                <label htmlFor={field.id} className="block text-sm font-medium text-gray-700">{field.label}</label>
-                <input
-                  id={field.id}
-                  name={field.id}
-                  type="text"
-                  value={(formData as any)[field.id]}
-                  onChange={handleChange}
-                  className="mt-1 p-2 w-full border rounded-md"
-                />
-              </div>
-            ))}
+          {[
+            { id: 'nama', label: 'Nama' },
+            { id: 'nisn', label: 'NISN' },
+            { id: 'email', label: 'Email' },
+            { id: 'hp', label: 'No. HP' },
+            { id: 'gender', label: 'Jenis Kelamin' },
+            { id: 'ttl', label: 'Tempat, Tanggal Lahir' },
+            { id: 'alamat', label: 'Alamat' },
+            { id: 'kelas', label: 'Kelas' },
+            { id: 'jurusan', label: 'Jurusan' },
+            { id: 'wali', label: 'Wali' },  // New Field
+            { id: 'no_wali', label: 'No. Wali' },  // New Field
+            { id: 'ibu', label: 'Ibu' },  // New Field
+            { id: 'no_ibu', label: 'No. Ibu' },  // New Field
+            { id: 'ayah', label: 'Ayah' },  // New Field
+            { id: 'no_ayah', label: 'No. Ayah' },  // New Field
+            { id: 'alamat_ortu', label: 'Alamat Orang Tua' },  // New Field
+            { id: 'agama', label: 'Agama' },  // New Field
+            { id: 'kewarganegaraan', label: 'Kewarganegaraan' },  // New Field
+            { id: 'pendidikan', label: 'Pendidikan' },  // New Field
+            { id: 'keterampilan_teknis', label: 'Keterampilan Teknis' },  // New Field
+            { id: 'keterampilan_nonteknis', label: 'Keterampilan Non-Teknis' },  // New Field
+          ].map((field) => (
+            <div key={field.id}>
+              <label htmlFor={field.id} className="block text-sm font-medium text-gray-700">{field.label}</label>
+              <input
+                id={field.id}
+                name={field.id}
+                type="text"
+                value={(formData as any)[field.id]}
+                onChange={handleChange}
+                className="mt-1 p-2 w-full border rounded-md"
+              />
+            </div>
+          ))}
+
 
             <div className="pt-4">
               <button

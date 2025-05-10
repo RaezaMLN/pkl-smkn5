@@ -113,7 +113,7 @@ const SiswaDashboardPage = () => {
         <div className="flex gap-4">
           
           <Link href="/siswa/profil">
-            <button className="bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700">Edit Profil</button>
+            <button className="bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700">Edit / Lengkapi Profil</button>
           </Link>
         </div>
 
