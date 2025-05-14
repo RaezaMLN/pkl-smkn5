@@ -162,22 +162,44 @@ export default function ProfilSiswa() {
             { id: 'email', label: 'Email' },
             { id: 'hp', label: 'No. HP' },
             { id: 'gender', label: 'Jenis Kelamin' },
+            { id: 'agama', label: 'Agama' },
+            { id: 'kewarganegaraan', label: 'Kewarganegaraan' },
             { id: 'ttl', label: 'Tempat, Tanggal Lahir' },
             { id: 'alamat', label: 'Alamat' },
             { id: 'kelas', label: 'Kelas' },
-            { id: 'jurusan', label: 'Jurusan' },
-            { id: 'wali', label: 'Wali' },  // New Field
-            { id: 'no_wali', label: 'No. Wali' },  // New Field
+            { id: 'jurusan', label: 'Kompetensi Keahlian' },
+
+           
+            { id: 'pendidikan', label: 'Pendidikan' },  // simpan dalam bentuk array agar bisa mengisi multiple
+            { id: 'keterampilan_teknis', label: 'Keterampilan Teknis' },  //buat select untuk tentukan pilihan keterampilan teknis
+            { id: 'keterampilan_nonteknis', label: 'Keterampilan Non-Teknis' },  // Nbuat select untuk tentukan pilihan keterampilan non-teknis
+
+       
+          ].map((field) => (
+            <div key={field.id}>
+              <label htmlFor={field.id} className="block text-sm font-medium text-gray-700">{field.label}</label>
+              <input
+                id={field.id}
+                name={field.id}
+                type="text"
+                value={(formData as any)[field.id]}
+                onChange={handleChange}
+                className="mt-1 p-2 w-full border rounded-md"
+              />
+            </div>
+          ))}
+          
+           <span className="block text-md font-bold text-2xl my-5 text-gray-700">Orang Tua / Wali</span>
+        {[    
+            // buat judul pemisah untuk orang tua / wali 
+
             { id: 'ibu', label: 'Ibu' },  // New Field
             { id: 'no_ibu', label: 'No. Ibu' },  // New Field
             { id: 'ayah', label: 'Ayah' },  // New Field
             { id: 'no_ayah', label: 'No. Ayah' },  // New Field
+            { id: 'wali', label: 'Wali' },  // New Field
+            { id: 'no_wali', label: 'No. Wali' },  // New Field
             { id: 'alamat_ortu', label: 'Alamat Orang Tua' },  // New Field
-            { id: 'agama', label: 'Agama' },  // New Field
-            { id: 'kewarganegaraan', label: 'Kewarganegaraan' },  // New Field
-            { id: 'pendidikan', label: 'Pendidikan' },  // New Field
-            { id: 'keterampilan_teknis', label: 'Keterampilan Teknis' },  // New Field
-            { id: 'keterampilan_nonteknis', label: 'Keterampilan Non-Teknis' },  // New Field
           ].map((field) => (
             <div key={field.id}>
               <label htmlFor={field.id} className="block text-sm font-medium text-gray-700">{field.label}</label>
