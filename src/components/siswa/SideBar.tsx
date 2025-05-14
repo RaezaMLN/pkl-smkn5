@@ -9,6 +9,7 @@ const navItems = [
   { label: 'Dashboard', href: '/siswa/dashboard', icon: <Home size={20} /> },
   // { label: 'Daftar PKL', href: '/siswa/pendaftaran', icon: <FilePlus2 size={20} /> },
   // { label: 'Ajukan Tempat PKL', href: '/siswa/pengajuan', icon: <Send size={20} /> },
+  { label: 'Tempat PKL', href: '/siswa/dudi', icon: <FilePlus2 size={20} /> },
   { label: 'Profil', href: '/siswa/profil', icon: <User size={20} /> },
 ];
 
