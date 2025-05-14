@@ -85,7 +85,8 @@ const SiswaDashboardPage = () => {
           <StatusCard title="Laporan PKL" status={siswa.statusLaporan} />
         </div> */}
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+        {/* sembunyikan fitur */}
+        {/* <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
           <h2 className="text-xl font-semibold mb-4">Pendaftaran PKL</h2>
           {pendaftaran && perusahaan ? (
             <div>
@@ -98,7 +99,7 @@ const SiswaDashboardPage = () => {
               </button>
             </Link>
           )}
-        </div>
+        </div> */}
 
         {perusahaan && (
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
