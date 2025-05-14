@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import PendidikanModal from '@/components/siswa/PendidikanModal';
 
 interface SiswaProfile {
   nama: string;
@@ -55,12 +56,31 @@ export default function ProfilSiswa() {
     alamat_ortu: '',
     agama: '',
     kewarganegaraan: '',
-    pendidikan: '',
+    pendidikan: "",
     keterampilan_teknis: '',
     keterampilan_nonteknis: '',
   });
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
+
+  // modal pendidikan 
+  const [showPendidikanModal, setShowPendidikanModal] = useState(false);
+  const [pendidikanList, setPendidikanList] = useState<{ tingkat: string; namaSekolah: string }[]>([]);
+  const handleAddPendidikan = (pendidikan: { tingkat: string; namaSekolah: string }) => {
+    setPendidikanList((prev) => [...prev, pendidikan]);
+  };
+  
+  // Fungsi untuk membuka modal pendidikan
+  const openPendidikanModal = () => {
+    setShowPendidikanModal(true);
+  };
+  
+  // Fungsi untuk menutup modal pendidikan
+  const closePendidikanModal = () => {
+    setShowPendidikanModal(false);
+  };
+
+
 
   useEffect(() => {
     const siswaData = localStorage.getItem('siswa');
@@ -188,6 +208,31 @@ export default function ProfilSiswa() {
               />
             </div>
           ))}
+
+          {/* <span className="block text-md font-bold text-2xl my-5 text-gray-700">Pendidikan</span> */}
+
+            {/* pendidikan  */}
+            {/* <div className="pt-4">
+                <button
+                  type="button"
+                  onClick={openPendidikanModal} // Tombol untuk membuka modal
+                  className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md"
+                >
+                  Tambah Pendidikan
+                </button>
+              </div> */}
+
+              {/* Menampilkan Daftar Pendidikan yang Sudah Ditambahkan */}
+              {/* <div className="mt-4">
+                <h4 className="text-lg font-semibold">Pendidikan:</h4>
+                <ul>
+                  {pendidikanList.map((pendidikan, index) => (
+                    <li key={index} className="my-2">
+                      {pendidikan.tingkat} - {pendidikan.namaSekolah}
+                    </li>
+                  ))}
+                </ul>
+              </div> */}
           
            <span className="block text-md font-bold text-2xl my-5 text-gray-700">Orang Tua / Wali</span>
         {[    
@@ -262,6 +307,13 @@ export default function ProfilSiswa() {
       ) : (
         <p>Memuat profil...</p>
       )}
+
+      {/* Menampilkan Modal Pendidikan */}
+      <PendidikanModal
+        isOpen={showPendidikanModal}
+        onClose={closePendidikanModal}
+        onAddPendidikan={handleAddPendidikan}
+      />
 
       {/* Modal Popup */}
       {showModal && (
