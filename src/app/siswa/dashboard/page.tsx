@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 import Link from "next/link";
+import SuratPernyataanModal from "@/components/siswa/SuratPernyataanModal";
 
 interface Perusahaan {
   nama: string;
@@ -31,6 +32,7 @@ const SiswaDashboardPage = () => {
   const [pendaftaran, setPendaftaran] = useState<PendaftaranData | null>(null);
   const [perusahaan, setPerusahaan] = useState<Perusahaan | null>(null);
   const [loading, setLoading] = useState(true);
+  const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
     const local = localStorage.getItem("siswa");
@@ -111,6 +113,13 @@ const SiswaDashboardPage = () => {
           </div>
         )}
 
+      <button
+        onClick={() => setOpenModal(true)}
+        className="mt-6 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+      >
+        Unduh Surat Pernyataan PKL
+      </button>
+
         <div className="flex gap-4">
           
           <Link href="/siswa/profil">
@@ -119,6 +128,7 @@ const SiswaDashboardPage = () => {
         </div>
 
       </div>
+      <SuratPernyataanModal isOpen={openModal} onClose={() => setOpenModal(false)} />
     </div>
   );
 };
