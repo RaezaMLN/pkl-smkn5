@@ -67,16 +67,43 @@ export default function ProfilSiswa() {
   });
 
 const opsiTeknis = [
-  { value: 'HTML', label: 'HTML' },
-  { value: 'CSS', label: 'CSS' },
-  { value: 'React', label: 'React' },
-  { value: 'Firebase', label: 'Firebase' },
+  { value: 'Microsoft Office', label: 'Microsoft Office' },
+  { value: 'Canva', label: 'Canva' },
+  { value: 'Adobe Ilustrator', label: 'Adobe Ilustrator' },
+  { value: 'Corel Draw', label: 'Corel Draw' },
+  { value: 'CapCut', label: 'CapCut' },
+  { value: 'Jaringan Dasar', label: 'Jaringan Dasar' },
+  { value: 'Routing dan Switching', label: 'Routing dan Switching' },
+  { value: 'Mikrotik', label: 'Mikrotik' },
+  { value: 'Linux Server', label: 'Linux Server' },
+  { value: 'Keamanan Jaringan', label: 'Keamanan Jaringan' },
+  { value: 'Jaringan Akses Fiber Optik', label: 'Jaringan Akses Fiber Optik' },
+  { value: 'Teknologi Wireless', label: 'Teknologi Wireless' },
+  { value: 'Pemrograman Jaringan', label: 'Pemrograman Jaringan' },
+  { value: 'Perangkat Telekomunikasi', label: 'Perangkat Telekomunikasi' },
+  { value: 'HTML & CSS', label: 'HTML & CSS' },
+  { value: 'JavaScript', label: 'JavaScript' },
+  { value: 'PHP', label: 'PHP' },
+  { value: 'Mysql CRUD', label: 'Mysql CRUD' },
+  { value: 'Basis Data', label: 'Basis Data' },
+  { value: 'Sinematografi', label: 'Sinematografi' },
+  { value: 'Editing Video', label: 'Editing Video' },
+  { value: 'Penyutradaraan', label: 'Penyutradaraan' },
+  { value: 'Penulisan Skenario', label: 'Penulisan Skenario' },
+  { value: 'Manajemen Produksi', label: 'Manajemen Produksi' },
 ];
 
 const opsiNonTeknis = [
-  { value: 'Public Speaking', label: 'Public Speaking' },
-  { value: 'Teamwork', label: 'Teamwork' },
-  { value: 'Leadership', label: 'Leadership' },
+  { value: 'Manajemen Waktu', label: 'Manajemen Waktu' },
+  { value: 'Kerja Sama Tim', label: 'Kerja Sama Tim' },
+  { value: 'Komunikasi Efektif', label: 'Komunikasi Efektif' },
+  { value: 'Etika Profesional', label: 'Etika Profesional' },
+  { value: 'Kepemimpinan Lapangan', label: 'Kepemimpinan Lapangan' },
+  { value: 'Keselamatan Kerja', label: 'Keselamatan Kerja' },
+  { value: 'Problem Solving', label: 'Problem Solving' },
+  { value: 'Kolaborasi Tim', label: 'Kolaborasi Tim' },
+  { value: 'Presentasi Proyek', label: 'Presentasi Proyek' },
+  { value: 'Kreativitas', label: 'Kreativitas' },
 ];
 
 
@@ -199,7 +226,20 @@ const opsiNonTeknis = [
     setShowModal(false);
   };
 
-
+  const opsiAgama = [
+    { value: 'Islam', label: 'Islam' },
+    { value: 'Kristen', label: 'Kristen' },
+    { value: 'Katolik', label: 'Katolik' },
+    { value: 'Hindu', label: 'Hindu' },
+    { value: 'Buddha', label: 'Buddha' },
+    { value: 'Konghucu', label: 'Konghucu' },
+  ];
+  
+  const opsiKewarganegaraan = [
+    { value: 'Indonesia', label: 'Indonesia' },
+    { value: 'Asing', label: 'Asing' },
+  ];
+  
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
@@ -214,12 +254,12 @@ const opsiNonTeknis = [
             { id: 'email', label: 'Email' },
             { id: 'hp', label: 'No. HP' },
             { id: 'gender', label: 'Jenis Kelamin' },
-            { id: 'agama', label: 'Agama' },
-            { id: 'kewarganegaraan', label: 'Kewarganegaraan' },
+            // { id: 'agama', label: 'Agama' },
+            // { id: 'kewarganegaraan', label: 'Kewarganegaraan' },
             { id: 'ttl', label: 'Tempat, Tanggal Lahir' },
             { id: 'alamat', label: 'Alamat' },
             { id: 'kelas', label: 'Kelas' },
-            { id: 'jurusan', label: 'Kompetensi Keahlian' },
+            { id: 'jurusan', label: 'Konsentrasi Keahlian' },
 
            
             // { id: 'pendidikan', label: 'Pendidikan' },  // simpan dalam bentuk array agar bisa mengisi multiple
@@ -241,6 +281,35 @@ const opsiNonTeknis = [
             </div>
           ))}
 
+        <label className="block text-sm font-medium text-gray-700">Agama</label>
+        <CreatableSelect
+          isClearable
+          options={opsiAgama}
+          value={formData.agama ? { value: formData.agama, label: formData.agama } : null}
+          onChange={(selected) =>
+            setFormData((prev) => ({
+              ...prev,
+              agama: selected ? selected.value : '',
+            }))
+          }
+          className="mb-4"
+        />
+
+        <label className="block text-sm font-medium text-gray-700">Kewarganegaraan</label>
+        <CreatableSelect
+          isClearable
+          options={opsiKewarganegaraan}
+          value={formData.kewarganegaraan ? { value: formData.kewarganegaraan, label: formData.kewarganegaraan } : null}
+          onChange={(selected) =>
+            setFormData((prev) => ({
+              ...prev,
+              kewarganegaraan: selected ? selected.value : '',
+            }))
+          }
+          className="mb-4"
+        />
+
+
           <span className="block text-md font-bold text-2xl my-5 text-gray-700">Pendidikan</span>
           {[
             { id: 'p_sd', label: 'SD/sederajat' },
@@ -256,6 +325,7 @@ const opsiNonTeknis = [
                 type="text"
                 value={(formData as any)[field.id]}
                 onChange={handleChange}
+                placeholder='nama-sekolah (thn masuk - thn tamat/sampai sekarang)'
                 className="mt-1 p-2 w-full border rounded-md"
               />
             </div>
@@ -266,6 +336,7 @@ const opsiNonTeknis = [
             isMulti
             options={opsiTeknis}
             value={formData.keterampilan_teknis.map((val) => ({ value: val, label: val }))}
+            placeholder="tambahkan lainnya (optional)"
             onChange={(selected) =>
               setFormData((prev) => ({
                 ...prev,
@@ -279,6 +350,7 @@ const opsiNonTeknis = [
             isMulti
             options={opsiNonTeknis}
             value={formData.keterampilan_nonteknis.map((val) => ({ value: val, label: val }))}
+            placeholder="tambahkan lainnya (optional)"
             onChange={(selected) =>
               setFormData((prev) => ({
                 ...prev,
@@ -288,29 +360,37 @@ const opsiNonTeknis = [
           />
 
            <span className="block text-md font-bold text-2xl my-5 text-gray-700">Orang Tua / Wali</span>
-        {[    
-            // buat judul pemisah untuk orang tua / wali 
+           {[
+              { id: 'ibu', label: 'Ibu' },
+              { id: 'no_ibu', label: 'No. Ibu', isPhone: true },
+              { id: 'ayah', label: 'Ayah' },
+              { id: 'no_ayah', label: 'No. Ayah', isPhone: true },
+              { id: 'wali', label: 'Wali' },
+              { id: 'no_wali', label: 'No. Wali', isPhone: true },
+              { id: 'alamat_ortu', label: 'Alamat Orang Tua' },
+            ].map((field) => (
+              <div key={field.id}>
+                <label htmlFor={field.id} className="block text-sm font-medium text-gray-700">
+                  {field.label}
+                </label>
+                <input
+                  id={field.id}
+                  name={field.id}
+                  type={field.isPhone ? "tel" : "text"}
+                  value={(formData as any)[field.id]}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Jika field nomor HP, validasi hanya angka
+                    if (field.isPhone && !/^\d*$/.test(value)) return; // Tolak jika bukan angka
+                    handleChange(e);
+                  }}
+                  className="mt-1 p-2 w-full border rounded-md"
+                  inputMode={field.isPhone ? "numeric" : undefined} // Mobile numeric keyboard
+                  pattern={field.isPhone ? "\\d*" : undefined} // Validasi angka
+                />
+              </div>
+            ))}
 
-            { id: 'ibu', label: 'Ibu' },  // New Field
-            { id: 'no_ibu', label: 'No. Ibu' },  // New Field
-            { id: 'ayah', label: 'Ayah' },  // New Field
-            { id: 'no_ayah', label: 'No. Ayah' },  // New Field
-            { id: 'wali', label: 'Wali' },  // New Field
-            { id: 'no_wali', label: 'No. Wali' },  // New Field
-            { id: 'alamat_ortu', label: 'Alamat Orang Tua' },  // New Field
-          ].map((field) => (
-            <div key={field.id}>
-              <label htmlFor={field.id} className="block text-sm font-medium text-gray-700">{field.label}</label>
-              <input
-                id={field.id}
-                name={field.id}
-                type="text"
-                value={(formData as any)[field.id]}
-                onChange={handleChange}
-                className="mt-1 p-2 w-full border rounded-md"
-              />
-            </div>
-          ))}
 
 
             <div className="pt-4">
