@@ -47,7 +47,7 @@ export async function generateDocx(templateUrl: string, data: Record<string, str
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     });
 
-    saveAs(out, "surat-pernyataan.docx");
+    saveAs(out, "FilePKL.docx");
   } catch (err) {
     console.error("Gagal mengunduh template atau membuat dokumen:", err);
     alert("Terjadi kesalahan saat membuat surat. Silakan coba lagi.");

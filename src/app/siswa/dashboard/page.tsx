@@ -5,6 +5,7 @@ import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 import Link from "next/link";
 import SuratPernyataanModal from "@/components/siswa/SuratPernyataanModal";
+import CVModal from "@/components/siswa/CVModald";
 
 interface Perusahaan {
   nama: string;
@@ -33,6 +34,8 @@ const SiswaDashboardPage = () => {
   const [perusahaan, setPerusahaan] = useState<Perusahaan | null>(null);
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
+  const [isCVModalOpen, setIsCVModalOpen] = useState(false);
+
 
   useEffect(() => {
     const local = localStorage.getItem("siswa");
@@ -75,61 +78,76 @@ const SiswaDashboardPage = () => {
 
   return (
     <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen text-gray-800 dark:text-white">
-      <div className="max-w-4xl mx-auto space-y-6">
-
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+    <div className="max-w-4xl mx-auto space-y-6">
+      
+      {/* Header Siswa */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 flex justify-between items-center">
+        <div>
           <h1 className="text-2xl font-bold">Halo, {siswa.nama} 👋</h1>
           <p className="text-sm text-gray-600 dark:text-gray-300">Kelas: {siswa.kelas}</p>
         </div>
-
-        {/* <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatusCard title="Pengajuan PKL" status={pendaftaran?.status || null} />
-          <StatusCard title="Laporan PKL" status={siswa.statusLaporan} />
-        </div> */}
-
-        {/* sembunyikan fitur */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Pendaftaran PKL</h2>
-          {pendaftaran && perusahaan ? (
-            <div>
-              <p className="text-green-600 text-start">Anda sudah mendaftar untuk PKL di <br/><span className="text-2xl text-blue-600">{perusahaan.nama}</span> </p>
-            </div>
-          ) : (
-            <Link href="/siswa/pendaftaran">
-              <button className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
-                Daftar Tempat PKL
-              </button>
-            </Link>
-          )}
-        </div>
-
-        {perusahaan && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Tempat PKL</h2>
+        <Link href="/siswa/profil">
+          <button className="bg-gray-700 text-white py-2 px-4 rounded hover:bg-gray-600 transition">
+            Edit Profil
+          </button>
+        </Link>
+      </div>
+  
+      {/* Pendaftaran PKL */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+        <h2 className="text-xl font-semibold mb-3">📋 Pendaftaran PKL</h2>
+        {pendaftaran && perusahaan ? (
+          <p className="text-green-600">
+            Anda sudah mendaftar untuk PKL di <br />
+            <span className="text-2xl text-blue-600 font-semibold">{perusahaan.nama}</span>
+          </p>
+        ) : (
+          <Link href="/siswa/pendaftaran">
+            <button className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition">
+              Daftar Tempat PKL
+            </button>
+          </Link>
+        )}
+      </div>
+  
+      {/* Info Perusahaan */}
+      {perusahaan && (
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+          <h2 className="text-xl font-semibold mb-3">🏢 Tempat PKL</h2>
+          <div className="space-y-1">
             <p><strong>Perusahaan:</strong> {perusahaan.nama}</p>
-            <p><strong>bidang:</strong> {perusahaan.bidang}</p>
+            <p><strong>Bidang:</strong> {perusahaan.bidang}</p>
             <p><strong>Alamat:</strong> {perusahaan.alamat}</p>
             <p><strong>Kontak:</strong> {perusahaan.kontak}</p>
           </div>
-        )}
-
-      <button
-        onClick={() => setOpenModal(true)}
-        className="mt-6 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-      >
-        Unduh Surat Pernyataan PKL
-      </button>
-
-        <div className="flex gap-4">
-          
-          <Link href="/siswa/profil">
-            <button className="bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700">Edit / Lengkapi Profil</button>
-          </Link>
         </div>
-
+      )}
+  
+      {/* Aksi Dokumen */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 space-y-4">
+        <h2 className="text-xl font-semibold mb-3">📄 Dokumen Anda</h2>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <button
+            onClick={() => setOpenModal(true)}
+            className="flex-1 bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition"
+          >
+            Unduh Surat Pernyataan PKL
+          </button>
+          <button
+            onClick={() => setIsCVModalOpen(true)}
+            className="flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition"
+          >
+            Lihat & Unduh CV
+          </button>
+        </div>
       </div>
-      <SuratPernyataanModal isOpen={openModal} onClose={() => setOpenModal(false)} />
     </div>
+  
+    {/* Modals */}
+    <SuratPernyataanModal isOpen={openModal} onClose={() => setOpenModal(false)} />
+    <CVModal isOpen={isCVModalOpen} onClose={() => setIsCVModalOpen(false)} />
+  </div>
+  
   );
 };
 
