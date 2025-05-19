@@ -12,6 +12,7 @@ interface Perusahaan {
   bidang: string;
   kontak: string;
   kuota: number;
+  keterangan: string;
   siswa_terdaftar: string[];
 }
 
@@ -21,6 +22,7 @@ const PerusahaanPage = () => {
   const [alamat, setAlamat] = useState('');
   const [bidang, setBidang] = useState('');
   const [kontak, setKontak] = useState('');
+  const [keterangan, setKeterangan] = useState('');
   const [kuota, setKuota] = useState<number>(0);
   const [siswaTerdaftar, setSiswaTerdaftar] = useState<string[]>([]);
   const [editMode, setEditMode] = useState(false);
@@ -66,6 +68,7 @@ const PerusahaanPage = () => {
         bidang,
         kontak,
         kuota,
+        keterangan,
         siswa_terdaftar: [],
       });
       setNama('');
@@ -73,6 +76,7 @@ const PerusahaanPage = () => {
       setBidang('');
       setKontak('');
       setKuota(0);
+      setKeterangan('');
       setError('');
       fetchPerusahaan();
     } catch (error) {
@@ -98,10 +102,11 @@ const PerusahaanPage = () => {
     setBidang(bidang);
     setKontak(kontak);
     setKuota(kuota);
+    setKeterangan(keterangan);
   };
 
   const handleUpdate = async () => {
-    if (!nama || !alamat || !bidang || !kontak || kuota <= 0) {
+    if (!nama || !alamat || !bidang || !kontak || kuota <= 0 || !keterangan) {
       setError("Semua field harus diisi dengan benar.");
       return;
     }
@@ -114,6 +119,7 @@ const PerusahaanPage = () => {
         bidang,
         kontak,
         kuota,
+        keterangan,
       });
       setEditMode(false);
       setNama('');
@@ -121,6 +127,7 @@ const PerusahaanPage = () => {
       setBidang('');
       setKontak('');
       setKuota(0);
+      setKeterangan('');
       setError('');
       fetchPerusahaan();
     } catch (error) {
@@ -198,7 +205,7 @@ const PerusahaanPage = () => {
           <div className="mb-2">
             <label className="block text-sm font-medium">Kontak</label>
             <input
-              type="text"
+              type="number"
               value={kontak}
               onChange={(e) => setKontak(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md"
@@ -213,6 +220,16 @@ const PerusahaanPage = () => {
               onChange={(e) => setKuota(Number(e.target.value))}
               className="w-full p-2 border border-gray-300 rounded-md"
               placeholder="Kuota perusahaan"
+            />
+          </div>
+          <div className="mb-2">
+            <label className="block text-sm font-medium">Keterangan</label>
+            <input
+              type="text"
+              value={keterangan}
+              onChange={(e) => setKeterangan(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-md"
+              placeholder="Keterangan"
             />
           </div>
         </div>
