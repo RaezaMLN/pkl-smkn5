@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import PendidikanModal from '@/components/siswa/PendidikanModal';
+import CreatableSelect from 'react-select/creatable';
+
 
 interface SiswaProfile {
   nama: string;
@@ -27,9 +28,11 @@ interface SiswaProfile {
   alamat_ortu: string;
   agama: string;
   kewarganegaraan: string;
-  pendidikan: string;
-  keterampilan_teknis: string;
-  keterampilan_nonteknis: string;
+  p_sd: string;
+  p_smp: string;
+  p_smk: string;
+  keterampilan_teknis: string[];
+  keterampilan_nonteknis: string[];
 }
 
 export default function ProfilSiswa() {
@@ -56,32 +59,32 @@ export default function ProfilSiswa() {
     alamat_ortu: '',
     agama: '',
     kewarganegaraan: '',
-    pendidikan: "",
-    keterampilan_teknis: '',
-    keterampilan_nonteknis: '',
+    p_sd: '',
+    p_smp: '',
+    p_smk: '',
+    keterampilan_teknis: [],
+    keterampilan_nonteknis: [],
   });
+
+const opsiTeknis = [
+  { value: 'HTML', label: 'HTML' },
+  { value: 'CSS', label: 'CSS' },
+  { value: 'React', label: 'React' },
+  { value: 'Firebase', label: 'Firebase' },
+];
+
+const opsiNonTeknis = [
+  { value: 'Public Speaking', label: 'Public Speaking' },
+  { value: 'Teamwork', label: 'Teamwork' },
+  { value: 'Leadership', label: 'Leadership' },
+];
+
+
+
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
 
-  // modal pendidikan 
-  const [showPendidikanModal, setShowPendidikanModal] = useState(false);
-  const [pendidikanList, setPendidikanList] = useState<{ tingkat: string; namaSekolah: string }[]>([]);
-  const handleAddPendidikan = (pendidikan: { tingkat: string; namaSekolah: string }) => {
-    setPendidikanList((prev) => [...prev, pendidikan]);
-  };
-  
-  // Fungsi untuk membuka modal pendidikan
-  const openPendidikanModal = () => {
-    setShowPendidikanModal(true);
-  };
-  
-  // Fungsi untuk menutup modal pendidikan
-  const closePendidikanModal = () => {
-    setShowPendidikanModal(false);
-  };
-
-
-
+ 
   useEffect(() => {
     const siswaData = localStorage.getItem('siswa');
     const storedDocId = siswaData ? JSON.parse(siswaData).id : null;
@@ -112,9 +115,19 @@ export default function ProfilSiswa() {
             alamat_ortu: data.alamat_ortu,
             agama: data.agama,
             kewarganegaraan: data.kewarganegaraan,
-            pendidikan: data.pendidikan,
-            keterampilan_teknis: data.keterampilan_teknis,
-            keterampilan_nonteknis: data.keterampilan_nonteknis,
+            p_sd: data.p_sd,
+            p_smp: data.p_smp,
+            p_smk: data.p_smk,
+            keterampilan_teknis: Array.isArray(data.keterampilan_teknis)
+            ? data.keterampilan_teknis
+            : data.keterampilan_teknis
+            ? data.keterampilan_teknis.split(',').map((s:string) => s.trim())
+            : [],
+          keterampilan_nonteknis: Array.isArray(data.keterampilan_nonteknis)
+            ? data.keterampilan_nonteknis
+            : data.keterampilan_nonteknis
+            ? data.keterampilan_nonteknis.split(',').map((s:string) => s.trim())
+            : [],
           });
         }
       };
@@ -130,19 +143,36 @@ export default function ProfilSiswa() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
+  
     const siswaData = localStorage.getItem('siswa');
     const storedDocId = siswaData ? JSON.parse(siswaData).id : null;
+  
     if (storedDocId) {
       const profileDocRef = doc(db, 'siswa', storedDocId);
-      await updateDoc(profileDocRef, {
-        ...formData,
-      });
+  
+      // Filter formData supaya tidak ada undefined
+      const filteredData = Object.fromEntries(
+        Object.entries(formData).filter(([_, value]) => value !== undefined)
+      );
+  
+      try {
+        await updateDoc(profileDocRef, filteredData);
+        setModalMessage('Profil berhasil diperbarui!');
+        setShowModal(true);
+      } catch (error) {
+        console.error('Gagal update profil:', error);
+        setModalMessage('Terjadi kesalahan saat memperbarui profil.');
+        setShowModal(true);
+      } finally {
+        setIsSubmitting(false);
+      }
+    } else {
       setIsSubmitting(false);
-      setModalMessage('Profil berhasil diperbarui!');
+      setModalMessage('Data pengguna tidak ditemukan.');
       setShowModal(true);
     }
   };
+  
 
   const handleChangePassword = async () => {
     if (passwordBaru !== retypePassword) {
@@ -169,6 +199,8 @@ export default function ProfilSiswa() {
     setShowModal(false);
   };
 
+
+
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <h2 className="text-2xl font-semibold mb-6">Profil Siswa</h2>
@@ -190,9 +222,9 @@ export default function ProfilSiswa() {
             { id: 'jurusan', label: 'Kompetensi Keahlian' },
 
            
-            { id: 'pendidikan', label: 'Pendidikan' },  // simpan dalam bentuk array agar bisa mengisi multiple
-            { id: 'keterampilan_teknis', label: 'Keterampilan Teknis' },  //buat select untuk tentukan pilihan keterampilan teknis
-            { id: 'keterampilan_nonteknis', label: 'Keterampilan Non-Teknis' },  // Nbuat select untuk tentukan pilihan keterampilan non-teknis
+            // { id: 'pendidikan', label: 'Pendidikan' },  // simpan dalam bentuk array agar bisa mengisi multiple
+            // { id: 'keterampilan_teknis', label: 'Keterampilan Teknis' },  //buat select untuk tentukan pilihan keterampilan teknis
+            // { id: 'keterampilan_nonteknis', label: 'Keterampilan Non-Teknis' },  // Nbuat select untuk tentukan pilihan keterampilan non-teknis
 
        
           ].map((field) => (
@@ -209,31 +241,52 @@ export default function ProfilSiswa() {
             </div>
           ))}
 
-          {/* <span className="block text-md font-bold text-2xl my-5 text-gray-700">Pendidikan</span> */}
+          <span className="block text-md font-bold text-2xl my-5 text-gray-700">Pendidikan</span>
+          {[
+            { id: 'p_sd', label: 'SD/sederajat' },
+            { id: 'p_smp', label: 'SMP/sederajat' },
+            { id: 'p_smk', label: 'SMK/sederajat' },
+         
+          ].map((field) => (
+            <div key={field.id}>
+              <label htmlFor={field.id} className="block text-sm font-medium text-gray-700">{field.label}</label>
+              <input
+                id={field.id}
+                name={field.id}
+                type="text"
+                value={(formData as any)[field.id]}
+                onChange={handleChange}
+                className="mt-1 p-2 w-full border rounded-md"
+              />
+            </div>
+          ))}
+        <span className="block text-md font-bold text-2xl my-5 text-gray-700">Keterampilan</span>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Keterampilan Teknis</label>
+          <CreatableSelect
+            isMulti
+            options={opsiTeknis}
+            value={formData.keterampilan_teknis.map((val) => ({ value: val, label: val }))}
+            onChange={(selected) =>
+              setFormData((prev) => ({
+                ...prev,
+                keterampilan_teknis: selected ? selected.map((s) => s.value) : [],
+              }))
+            }
+          />
 
-            {/* pendidikan  */}
-            {/* <div className="pt-4">
-                <button
-                  type="button"
-                  onClick={openPendidikanModal} // Tombol untuk membuka modal
-                  className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md"
-                >
-                  Tambah Pendidikan
-                </button>
-              </div> */}
+          <label className="block text-sm font-medium text-gray-700 mb-1 mt-4">Keterampilan Non-Teknis</label>
+          <CreatableSelect
+            isMulti
+            options={opsiNonTeknis}
+            value={formData.keterampilan_nonteknis.map((val) => ({ value: val, label: val }))}
+            onChange={(selected) =>
+              setFormData((prev) => ({
+                ...prev,
+                keterampilan_nonteknis: selected ? selected.map((s) => s.value) : [],
+              }))
+            }
+          />
 
-              {/* Menampilkan Daftar Pendidikan yang Sudah Ditambahkan */}
-              {/* <div className="mt-4">
-                <h4 className="text-lg font-semibold">Pendidikan:</h4>
-                <ul>
-                  {pendidikanList.map((pendidikan, index) => (
-                    <li key={index} className="my-2">
-                      {pendidikan.tingkat} - {pendidikan.namaSekolah}
-                    </li>
-                  ))}
-                </ul>
-              </div> */}
-          
            <span className="block text-md font-bold text-2xl my-5 text-gray-700">Orang Tua / Wali</span>
         {[    
             // buat judul pemisah untuk orang tua / wali 
@@ -308,21 +361,16 @@ export default function ProfilSiswa() {
         <p>Memuat profil...</p>
       )}
 
-      {/* Menampilkan Modal Pendidikan */}
-      <PendidikanModal
-        isOpen={showPendidikanModal}
-        onClose={closePendidikanModal}
-        onAddPendidikan={handleAddPendidikan}
-      />
+    
 
       {/* Modal Popup */}
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <h3 className="text-lg font-semibold mb-4">{modalMessage}</h3>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-md shadow-md">
+            <p>{modalMessage}</p>
             <button
               onClick={handleCloseModal}
-              className="w-full bg-blue-600 hover:bg-blue-700 transition text-white py-2 rounded-md"
+              className="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-1 px-4 rounded"
             >
               Tutup
             </button>
