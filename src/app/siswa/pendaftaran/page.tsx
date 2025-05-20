@@ -40,6 +40,8 @@ export default function DaftarPkl() {
   const [uniqueBidang, setUniqueBidang] = useState<string[]>([]);
   const [siswaSudahDaftar, setSiswaSudahDaftar] = useState<string[]>([]);
   const [siswaSudahPernahDaftar, setSiswaSudahPernahDaftar] = useState(false);
+  const [filterKuota, setFilterKuota] = useState<string>('all');
+
 
 
 
@@ -116,7 +118,7 @@ useEffect(() => {
 
   useEffect(() => {
     let result = [...companies];
-
+  
     // Search
     if (searchQuery) {
       result = result.filter(
@@ -126,15 +128,23 @@ useEffect(() => {
           company.alamat.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-
+  
     // Filter bidang
     if (selectedBidang !== 'all') {
       result = result.filter((company) => company.bidang === selectedBidang);
     }
-
+  
+    // Filter kuota
+    if (filterKuota === 'tersedia') {
+      result = result.filter((company) => company.kuota > 0);
+    } else if (filterKuota === 'penuh') {
+      result = result.filter((company) => company.kuota <= 0);
+    }
+  
     setFilteredCompanies(result);
     setCurrentPage(1); // Reset ke halaman 1 saat filter berubah
-  }, [searchQuery, selectedBidang, companies]);
+  }, [searchQuery, selectedBidang, filterKuota, companies]);
+  
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -178,6 +188,16 @@ useEffect(() => {
               {b}
             </option>
           ))}
+        </select>
+        {/* filter kuota  */}
+        <select
+          value={filterKuota}
+          onChange={(e) => setFilterKuota(e.target.value)}
+          className="p-2 border rounded-md w-full md:w-1/4"
+        >
+          <option value="all">Semua Kuota</option>
+          <option value="tersedia">Kuota Tersedia</option>
+          <option value="penuh">Kuota Penuh</option>
         </select>
         <select
           value={itemsPerPage}

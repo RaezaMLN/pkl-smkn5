@@ -92,7 +92,7 @@ export default function PengajuanPkl() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <InputField label="Nama Perusahaan" name="nama_perusahaan" value={formData.nama_perusahaan} onChange={handleChange} />
         <InputField label="Alamat" name="alamat" value={formData.alamat} onChange={handleChange} />
-        <InputField label="Kontak" name="kontak" value={formData.kontak} onChange={handleChange} />
+        <InputField type="number" label="Kontak" name="kontak" value={formData.kontak} onChange={handleChange} />
         <InputField label="Bidang" name="bidang" value={formData.bidang} onChange={handleChange} />
 
         <button
