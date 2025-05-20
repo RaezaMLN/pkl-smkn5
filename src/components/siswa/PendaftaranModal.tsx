@@ -4,7 +4,7 @@
 
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
-import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { collection, addDoc, Timestamp, doc, getDoc, updateDoc } from "firebase/firestore";
 import { motion } from "framer-motion";
 
 interface SiswaData {
@@ -58,24 +58,48 @@ const PendaftaranModal = ({
     }
   };
 
+  
   const handleDaftar = async () => {
     if (!siswaData || !selectedCompany) {
       alert("Data belum lengkap. Silakan coba lagi.");
       return;
-    }
+    }  
 
     setLoading(true);
     try {
+      // 1. Referensi dokumen perusahaan
+      const perusahaanDocRef = doc(db, "perusahaan", selectedCompany.id);
+      const perusahaanSnapshot = await getDoc(perusahaanDocRef);
+  
+      if (!perusahaanSnapshot.exists()) {
+        alert("Perusahaan tidak ditemukan.");
+        return;
+      }
+  
+      const perusahaanData = perusahaanSnapshot.data();
+      const kuotaSekarang = perusahaanData.kuota;
+  
+      if (typeof kuotaSekarang !== "number" || kuotaSekarang <= 0) {
+        alert("Kuota perusahaan sudah habis.");
+        return;
+      }
+  
+      // 2. Tambahkan data pendaftaran
       const pendaftaranRef = collection(db, "pendaftaran");
       await addDoc(pendaftaranRef, {
-        siswa_id: siswaData.id, // gunakan id siswa
+        siswa_id: siswaData.id,
         perusahaan_id: selectedCompany.id,
         status: "pending",
         tanggal_daftar: Timestamp.fromDate(new Date()),
       });
-      
+  
+      // 3. Kurangi kuota perusahaan
+      await updateDoc(perusahaanDocRef, {
+        kuota: kuotaSekarang - 1,
+      });
+  
       alert("Pendaftaran berhasil.");
-      if (onSuccess) onSuccess(); // ← tambahkan ini
+      if (onSuccess) onSuccess();
       onClose();
     } catch (error) {
       console.error("Error saat menyimpan data pendaftaran:", error);
@@ -84,6 +108,36 @@ const PendaftaranModal = ({
       setLoading(false);
     }
   };
+
+  // tanpa pengurangan kuota 
+  // const handleDaftar = async () => {
+  //   if (!siswaData || !selectedCompany) {
+  //     alert("Data belum lengkap. Silakan coba lagi.");
+  //     return;
+  //   }
+
+  //   setLoading(true);
+  //   try {
+  //     const pendaftaranRef = collection(db, "pendaftaran");
+  //     await addDoc(pendaftaranRef, {
+  //       siswa_id: siswaData.id, // gunakan id siswa
+  //       perusahaan_id: selectedCompany.id,
+  //       status: "pending",
+  //       tanggal_daftar: Timestamp.fromDate(new Date()),
+  //     });
+      
+  //     alert("Pendaftaran berhasil.");
+  //     if (onSuccess) onSuccess(); // ← tambahkan ini
+  //     onClose();
+  //   } catch (error) {
+  //     console.error("Error saat menyimpan data pendaftaran:", error);
+  //     alert("Terjadi kesalahan saat mendaftar. Silakan coba lagi.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+
 
   useEffect(() => {
     if (isOpen) {

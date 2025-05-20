@@ -26,6 +26,7 @@ interface Company {
   bidang: string;
   kontak: string;
   kuota: number;
+  keterangan: string;
   siswa_terdaftar: string[];
 }
 
@@ -205,6 +206,7 @@ useEffect(() => {
               <p>📍 <span className="font-medium">{company.alamat}</span></p>
               <p>💼 <span className="font-medium">{company.bidang}</span></p>
               <p>📞 <span className="font-medium">{company.kontak}</span></p>
+              <p>📝 <span className="font-medium">{company.keterangan}</span></p>
               <button
                   onClick={() => handleLihatSiswa(company.id)}
                   className="text-blue-600 hover:underline"
