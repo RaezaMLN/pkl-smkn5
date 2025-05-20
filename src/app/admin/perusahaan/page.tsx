@@ -94,7 +94,7 @@ const PerusahaanPage = () => {
     }
   };
 
-  const handleEdit = (id: string, nama: string, alamat: string, bidang: string, kontak: string, kuota: number) => {
+  const handleEdit = (id: string, nama: string, alamat: string, bidang: string, kontak: string, keterangan:string, kuota: number) => {
     setEditMode(true);
     setEditId(id);
     setNama(nama);
@@ -260,6 +260,7 @@ const PerusahaanPage = () => {
               <th className="px-4 py-2">Alamat</th>
               <th className="px-4 py-2">Bidang</th>
               <th className="px-4 py-2">Kontak</th>
+              <th className="px-4 py-2">Keterangan</th>
               <th className="px-4 py-2">Kuota</th>
               <th className="px-4 py-2">Aksi</th>
             </tr>
@@ -272,6 +273,7 @@ const PerusahaanPage = () => {
                 <td className="px-4 py-2">{per.alamat}</td>
                 <td className="px-4 py-2">{per.bidang}</td>
                 <td className="px-4 py-2">{per.kontak}</td>
+                <td className="px-4 py-2">{per.keterangan}</td>
                 <td className="px-4 py-2">{per.kuota}</td>
                 <td className="px-4 py-2 flex space-x-2">
                   {/* Di dalam tabel daftar perusahaan */}
@@ -283,7 +285,7 @@ const PerusahaanPage = () => {
                 </button>
 
                   <button
-                    onClick={() => handleEdit(per.id, per.nama, per.alamat, per.bidang, per.kontak, per.kuota)}
+                    onClick={() => handleEdit(per.id, per.nama, per.alamat, per.bidang, per.kontak, per.keterangan, per.kuota)}
                     className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
                   >
                     Edit

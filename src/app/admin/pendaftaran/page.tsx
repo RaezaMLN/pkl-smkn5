@@ -123,43 +123,30 @@ const PendaftaranPage = () => {
 
   const handleStatusUpdate = async (id: string, newStatus: string) => {
     try {
-      // Update status pendaftaran terlebih dahulu
       const pendaftaranRef = doc(db, "pendaftaran", id);
       const pendaftaranSnap = await getDoc(pendaftaranRef);
       const pendaftaranData = pendaftaranSnap.data() as Pendaftaran;
   
-      // Jika status diterima, update data perusahaan dan siswa
       if (newStatus === "diterima") {
         const perusahaanRef = doc(db, "perusahaan", pendaftaranData.perusahaan_id);
         const perusahaanSnap = await getDoc(perusahaanRef);
         const perusahaanData = perusahaanSnap.data();
   
-        // Pastikan data perusahaan ada sebelum melanjutkan
         if (!perusahaanData) {
           alert("Data perusahaan tidak ditemukan");
           return;
         }
   
-        // Periksa kuota perusahaan, jika kuota masih ada
-        if (perusahaanData.kuota > 0) {
-          // Menambahkan siswa ke field siswa_terdaftar di data perusahaan
-          const updatedSiswaList = perusahaanData.siswa_terdaftar || [];
-          updatedSiswaList.push(pendaftaranData.siswa_id);
+        const updatedSiswaList = perusahaanData.siswa_terdaftar || [];
+        updatedSiswaList.push(pendaftaranData.siswa_id);
   
-          // Mengurangi kuota perusahaan
-          await updateDoc(perusahaanRef, {
-            siswa_terdaftar: updatedSiswaList,
-            kuota: perusahaanData.kuota - 1, // Mengurangi kuota
-          });
+        await updateDoc(perusahaanRef, {
+          siswa_terdaftar: updatedSiswaList,
+        });
   
-          // Update status pendaftaran menjadi diterima
-          await updateDoc(pendaftaranRef, { status: "diterima" });
-          fetchPendaftaran();
-        } else {
-          alert("Kuota perusahaan sudah penuh");
-        }
+        await updateDoc(pendaftaranRef, { status: "diterima" });
+        fetchPendaftaran();
       } else {
-        // Jika status ditolak, hanya update status pendaftaran
         await updateDoc(pendaftaranRef, { status: newStatus });
         fetchPendaftaran();
       }
@@ -167,6 +154,7 @@ const PendaftaranPage = () => {
       console.error("Gagal memperbarui status:", error);
     }
   };
+  
   
   
   
