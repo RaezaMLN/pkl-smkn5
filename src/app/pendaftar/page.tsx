@@ -9,6 +9,7 @@ import {
   doc,
 } from "firebase/firestore";
 import Select from 'react-select';
+import { motion } from 'framer-motion';
 
 interface Pendaftaran {
   id: string;
@@ -115,12 +116,8 @@ const PendaftaranPage = () => {
   };
 
   const perusahaanOptions = perusahaanList.map(p => ({ label: p.nama, value: p.id }));
-  const jurusanOptions = Array.from(
-    new Set(siswaList.map(s => s.jurusan).filter(Boolean))
-  ).map(jurusan => ({
-    label: jurusan,
-    value: jurusan,
-  }));
+  const jurusanOptions = Array.from(new Set(siswaList.map(s => s.jurusan).filter(Boolean)))
+    .map(jurusan => ({ label: jurusan, value: jurusan }));
 
   const filteredData = pendaftaran.filter(item => {
     const perusahaanNama = perusahaanList.find(p => p.id === item.perusahaan_id)?.nama || '';
@@ -137,58 +134,58 @@ const PendaftaranPage = () => {
   const paginatedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
-    <div className="container mx-auto p-4 w-full">
-      <h1 className="text-xl font-semibold mb-4">Manajemen Pendaftaran</h1>
+    <motion.div 
+      className="container mx-auto p-4 w-full"
+      initial={{ opacity: 0, y: 20 }} 
+      animate={{ opacity: 1, y: 0 }} 
+      transition={{ duration: 0.5 }}
+    >
+      <h1 className="text-2xl font-bold mb-6 text-center text-blue-700">Manajemen Pendaftaran</h1>
 
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:gap-6 mb-4">
-  <input
-    type="text"
-    placeholder="Cari nama perusahaan/siswa"
-    value={searchTerm}
-    onChange={(e) => {
-      setSearchTerm(e.target.value);
-      setCurrentPage(1);
-    }}
-    className="border px-3 py-2 rounded w-full max-w-xs"
-  />
+      <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <input
+          type="text"
+          placeholder="Cari nama perusahaan/siswa"
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="border px-3 py-2 rounded shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
+        />
 
-  <div className="w-full max-w-xs">
-    <Select
-      options={perusahaanOptions}
-      value={selectedPerusahaan}
-      onChange={(option) => {
-        setSelectedPerusahaan(option);
-        setCurrentPage(1);
-      }}
-      isClearable
-      placeholder="Filter perusahaan"
-    />
-  </div>
+        <Select
+          options={perusahaanOptions}
+          value={selectedPerusahaan}
+          onChange={(option) => {
+            setSelectedPerusahaan(option);
+            setCurrentPage(1);
+          }}
+          isClearable
+          placeholder="Filter perusahaan"
+        />
 
-  <div className="w-full max-w-xs">
-    <Select
-      options={jurusanOptions}
-      value={selectedJurusan ? { label: selectedJurusan, value: selectedJurusan } : null}
-      onChange={(option) => {
-        setSelectedJurusan(option ? option.value : null);
-        setCurrentPage(1);
-      }}
-      isClearable
-      placeholder="Filter jurusan"
-    />
-  </div>
-</div>
+        <Select
+          options={jurusanOptions}
+          value={selectedJurusan ? { label: selectedJurusan, value: selectedJurusan } : null}
+          onChange={(option) => {
+            setSelectedJurusan(option ? option.value : null);
+            setCurrentPage(1);
+          }}
+          isClearable
+          placeholder="Filter jurusan"
+        />
+      </motion.div>
 
-
-      <div className="mb-4">
-        <label className="mr-2 font-medium">Data per halaman:</label>
+      <div className="flex items-center gap-2 mb-4">
+        <label className="font-medium">Data per halaman:</label>
         <select
           value={itemsPerPage}
           onChange={(e) => {
             setItemsPerPage(parseInt(e.target.value));
             setCurrentPage(1);
           }}
-          className="border rounded px-3 py-1"
+          className="border rounded px-3 py-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
         >
           {[10, 20, 50].map((count) => (
             <option key={count} value={count}>{count}</option>
@@ -196,8 +193,13 @@ const PendaftaranPage = () => {
         </select>
       </div>
 
-      <table className="min-w-full table-auto">
-        <thead>
+      <motion.table 
+        className="min-w-full table-auto border shadow rounded-lg overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+      >
+        <thead className="bg-blue-100">
           <tr>
             <th className="px-4 py-2 text-left">No</th>
             <th className="px-4 py-2 text-left">Perusahaan</th>
@@ -213,7 +215,12 @@ const PendaftaranPage = () => {
             const perusahaanNama = perusahaanList.find(p => p.id === item.perusahaan_id)?.nama || '-';
             const siswa = siswaList.find(s => s.id === item.siswa_id);
             return (
-              <tr key={item.id} className="border-b">
+              <motion.tr
+                key={item.id}
+                className="border-b hover:bg-blue-50"
+                whileHover={{ scale: 1.01 }}
+                transition={{ type: 'spring', stiffness: 300 }}
+              >
                 <td className="px-4 py-2">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                 <td className="px-4 py-2">{perusahaanNama}</td>
                 <td className="px-4 py-2">{siswa?.nama || '-'}</td>
@@ -221,24 +228,24 @@ const PendaftaranPage = () => {
                 <td className="px-4 py-2 capitalize">{siswa?.jurusan || '-'}</td>
                 <td className="px-4 py-2 capitalize">{item.status}</td>
                 <td className="px-4 py-2">{item.tanggal_daftar?.toDate?.().toLocaleString()}</td>
-              </tr>
+              </motion.tr>
             );
           })}
         </tbody>
-      </table>
+      </motion.table>
 
-      <div className="flex justify-center mt-4 space-x-2">
+      <div className="flex justify-center mt-6 space-x-2">
         {Array.from({ length: totalPages }).map((_, idx) => (
           <button
             key={idx + 1}
             onClick={() => setCurrentPage(idx + 1)}
-            className={`px-3 py-1 rounded ${currentPage === idx + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            className={`px-3 py-1 rounded font-medium transition-all duration-200 ${currentPage === idx + 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
           >
             {idx + 1}
           </button>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 };
 
