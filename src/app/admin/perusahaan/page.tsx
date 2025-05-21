@@ -106,7 +106,7 @@ const PerusahaanPage = () => {
   };
 
   const handleUpdate = async () => {
-    if (!nama || !alamat || !bidang || !kontak || kuota <= 0 || !keterangan) {
+    if (!nama || !alamat || !bidang || !kontak || !keterangan) {
       setError("Semua field harus diisi dengan benar.");
       return;
     }
