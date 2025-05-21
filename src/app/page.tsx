@@ -76,6 +76,9 @@ export default function Home() {
         <Link href="/dudi" className="inline-block bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transform hover:scale-105">
           Lihat Tempat PKL yang Tersedia
         </Link>
+        <Link href="/pendaftar" className="inline-block bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transform hover:scale-105">
+          Lihat yang sudah mendaftar
+        </Link>
         <div className="text-xl font-medium text-blue-700 dark:text-blue-300">Selamat Datang di Portal E-PKL</div>
         <div className="flex gap-4 flex-wrap justify-center">
           <Link
