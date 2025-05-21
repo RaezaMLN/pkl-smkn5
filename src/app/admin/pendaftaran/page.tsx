@@ -122,13 +122,38 @@ const PendaftaranPage = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await deleteDoc(doc(db, "pendaftaran", id));
+      // Ambil data pendaftaran yang akan dihapus
+      const pendaftaranRef = doc(db, "pendaftaran", id);
+      const pendaftaranSnap = await getDoc(pendaftaranRef);
+      const pendaftaranData = pendaftaranSnap.data() as Pendaftaran;
+  
+      if (!pendaftaranData) {
+        console.error("Data pendaftaran tidak ditemukan.");
+        return;
+      }
+  
+      const perusahaanRef = doc(db, "perusahaan", pendaftaranData.perusahaan_id);
+      const perusahaanSnap = await getDoc(perusahaanRef);
+  
+      if (perusahaanSnap.exists()) {
+        const perusahaanData = perusahaanSnap.data();
+        const currentKuota = perusahaanData.kuota || 0;
+  
+        // Tambah 1 ke kuota
+        await updateDoc(perusahaanRef, {
+          kuota: currentKuota + 1,
+        });
+      }
+  
+      // Hapus pendaftaran
+      await deleteDoc(pendaftaranRef);
       setShowConfirmDelete(false);
       fetchPendaftaran();
     } catch (error) {
       console.error("Gagal menghapus pendaftaran:", error);
     }
   };
+  
 
   const handleStatusUpdate = async (id: string, newStatus: string) => {
     try {
