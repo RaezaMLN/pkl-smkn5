@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import SiswaTerdaftarModal from "@/components/siswa/SiswaTerdaftarModal"
+import PdfModal from "@/components/admin/PdfModal"
+
 
 interface Perusahaan {
   id: string;
@@ -34,6 +36,7 @@ const PerusahaanPage = () => {
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [searchQuery, setSearchQuery] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [modalPdfOpen, setModalPdfOpen] = useState(false);
   const [selectedPerusahaanId, setSelectedPerusahaanId] = useState<string | null>(null);
 
   const handleLihatSiswa = (perusahaanId: string) => {
@@ -250,6 +253,18 @@ const PerusahaanPage = () => {
           </button>
         </div>
       </div>
+       <button
+        onClick={() => setModalPdfOpen(true)}
+        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+      >
+        Unduh Data PDF
+      </button>
+
+      <PdfModal
+        open={modalPdfOpen}
+        onClose={() => setModalPdfOpen(false)}
+        data={perusahaan}  // kirim seluruh list perusahaan
+      />
 
       <div className="overflow-x-auto">
         <table className="min-w-full table-auto mb-4">
