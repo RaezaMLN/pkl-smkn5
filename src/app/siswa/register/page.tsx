@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { motion } from "framer-motion";
 import Modal from "@/components/ui/Modal";
@@ -64,61 +64,73 @@ const RegisterPage = () => {
   };
 
   const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (formData.password !== formData.konfirmasi) {
-      setModalMessage("Password dan konfirmasi tidak cocok!");
+  if (formData.password !== formData.konfirmasi) {
+    setModalMessage("Password dan konfirmasi tidak cocok!");
+    setShowModal(true);
+    return;
+  }
+
+  const requiredFields = [
+    "nama",
+    "nisn",
+    "email",
+    "hp",
+    "gender",
+    "ttl",
+    "alamat",
+    "kelas",
+    "jurusan",
+    "password",
+  ];
+
+  for (let field of requiredFields) {
+    if (!formData[field as keyof typeof formData]) {
+      setModalMessage(`${field} harus diisi!`);
+      setShowModal(true);
+      return;
+    }
+  }
+
+  try {
+    // Cek apakah email sudah terdaftar
+    const siswaRef = collection(db, "siswa");
+    const q = query(siswaRef, where("email", "==", formData.email));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      setModalMessage("Email sudah terdaftar, silakan gunakan email lain.");
       setShowModal(true);
       return;
     }
 
-    const requiredFields = [
-      "nama",
-      "nisn",
-      "email",
-      "hp",
-      "gender",
-      "ttl",
-      "alamat",
-      "kelas",
-      "jurusan",
-      "password",
-    ];
+    // Jika email belum ada, lanjut daftar
+    await addDoc(siswaRef, {
+      nama: formData.nama,
+      nisn: formData.nisn,
+      email: formData.email,
+      hp: formData.hp,
+      gender: formData.gender,
+      ttl: formData.ttl,
+      alamat: formData.alamat,
+      kelas: formData.kelas,
+      jurusan: formData.jurusan,
+      password: formData.password,
+      createdAt: serverTimestamp(),
+    });
 
-    for (let field of requiredFields) {
-      if (!formData[field as keyof typeof formData]) {
-        setModalMessage(`${field} harus diisi!`);
-        setShowModal(true);
-        return;
-      }
-    }
-
-    try {
-      await addDoc(collection(db, "siswa"), {
-        nama: formData.nama,
-        nisn: formData.nisn,
-        email: formData.email,
-        hp: formData.hp,
-        gender: formData.gender,
-        ttl: formData.ttl,
-        alamat: formData.alamat,
-        kelas: formData.kelas,
-        jurusan: formData.jurusan,
-        password: formData.password,
-        createdAt: serverTimestamp(),
-      });
-
-      setModalMessage("Pendaftaran berhasil!");
-      setShowModal(true);
-      setTimeout(() => {
-        window.location.href = "/siswa/login";
-      }, 1500);
-    } catch (error) {
-      console.error("Gagal daftar:", error);
-      setModalMessage("Terjadi kesalahan saat pendaftaran.");
-      setShowModal(true);
-    }
-  };
+    setModalMessage("Pendaftaran berhasil!");
+    setShowModal(true);
+    setTimeout(() => {
+      window.location.href = "/siswa/login";
+    }, 1500);
+  } catch (error) {
+    console.error("Gagal daftar:", error);
+    setModalMessage("Terjadi kesalahan saat pendaftaran.");
+    setShowModal(true);
+  }
+};
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-6 sm:p-10">
