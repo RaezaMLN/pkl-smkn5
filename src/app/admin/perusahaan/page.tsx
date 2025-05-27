@@ -5,6 +5,8 @@ import { db } from "@/lib/firebase";
 import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import SiswaTerdaftarModal from "@/components/siswa/SiswaTerdaftarModal"
 import PdfModal from "@/components/admin/PdfModal"
+import ExclModal from "@/components/admin/ExclModal";
+
 
 
 interface Perusahaan {
@@ -37,6 +39,7 @@ const PerusahaanPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [modalPdfOpen, setModalPdfOpen] = useState(false);
+  const [modalExclOpen, setModalExclOpen] = useState(false);
   const [selectedPerusahaanId, setSelectedPerusahaanId] = useState<string | null>(null);
 
   const handleLihatSiswa = (perusahaanId: string) => {
@@ -265,6 +268,19 @@ const PerusahaanPage = () => {
         onClose={() => setModalPdfOpen(false)}
         data={perusahaan}  // kirim seluruh list perusahaan
       />
+
+      <button
+  onClick={() => setModalExclOpen(true)}
+  className="ml-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+>
+  Unduh Data Excel
+</button>
+<ExclModal
+  open={modalExclOpen}
+  onClose={() => setModalExclOpen(false)}
+  data={perusahaan}
+/>
+
 
       <div className="overflow-x-auto">
         <table className="min-w-full table-auto mb-4">
