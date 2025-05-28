@@ -133,12 +133,12 @@ const SiswaDashboardPage = () => {
           >
             Unduh Surat Pernyataan PKL
           </button>
-          <button
+          {/* <button
             onClick={() => setIsCVModalOpen(true)}
             className="flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition"
           >
             Lihat & Unduh CV
-          </button>
+          </button> */}
         </div>
       </div>
     </div>
