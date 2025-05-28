@@ -10,6 +10,8 @@ import {
   doc,
   updateDoc,
 } from "firebase/firestore";
+import DownloadExcelModal from "@/components/admin/DownloadSiswaModal";
+
 
 interface Siswa {
   id: string;
@@ -121,6 +123,10 @@ const SiswaPage = () => {
     currentPage * itemsPerPage
   );
 
+
+  const [showExcelModal, setShowExcelModal] = useState(false);
+
+
   return (
     <div className="container mx-auto p-4 max-w-5xl">
       <h1 className="text-xl font-semibold mb-4">Manajemen Siswa</h1>
@@ -194,6 +200,20 @@ const SiswaPage = () => {
           </div>
         </div>
       )}
+
+      <button
+  onClick={() => setShowExcelModal(true)}
+  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+>
+  Download Excel
+</button>
+
+{showExcelModal && (
+  <DownloadExcelModal
+    open={showExcelModal} onClose={() => setShowExcelModal(false)}
+  />
+)}
+
 
       {/* Daftar Siswa */}
       <table className="min-w-full table-auto mt-6 text-sm border">
