@@ -12,7 +12,6 @@ import {
 } from "firebase/firestore";
 import DownloadExcelModal from "@/components/admin/DownloadSiswaModal";
 
-
 interface Siswa {
   id: string;
   nama: string;
@@ -39,11 +38,10 @@ const SiswaPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [deletingId, setDeletingId] = useState('');
-
-  // Search & Pagination States
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [showExcelModal, setShowExcelModal] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -113,19 +111,15 @@ const SiswaPage = () => {
     }
   };
 
-  // Filtered & Paginated Data
-  const filteredSiswa = siswa.filter(s =>
-    s.nama.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredSiswa = siswa.filter(
+  (item) => typeof item.nama === 'string' && item.nama.toLowerCase().includes(searchTerm.toLowerCase())
+);
+
   const totalPages = Math.ceil(filteredSiswa.length / itemsPerPage);
   const paginatedSiswa = filteredSiswa.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-
-
-  const [showExcelModal, setShowExcelModal] = useState(false);
-
 
   return (
     <div className="container mx-auto p-4 max-w-5xl">
@@ -156,7 +150,7 @@ const SiswaPage = () => {
             value={itemsPerPage}
             onChange={(e) => {
               setItemsPerPage(Number(e.target.value));
-              setCurrentPage(1); // reset ke halaman pertama
+              setCurrentPage(1);
             }}
             className="px-2 py-1 border border-gray-300 rounded"
           >
@@ -167,7 +161,6 @@ const SiswaPage = () => {
         </div>
       </div>
 
-      {/* Form Input */}
       {showForm && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           {Object.keys(form).map((key) => (
@@ -202,20 +195,18 @@ const SiswaPage = () => {
       )}
 
       <button
-  onClick={() => setShowExcelModal(true)}
-  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
->
-  Download Excel
-</button>
+        onClick={() => setShowExcelModal(true)}
+        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      >
+        Download Excel
+      </button>
 
-{showExcelModal && (
-  <DownloadExcelModal
-    open={showExcelModal} onClose={() => setShowExcelModal(false)}
-  />
-)}
+      {showExcelModal && (
+        <DownloadExcelModal
+          open={showExcelModal} onClose={() => setShowExcelModal(false)}
+        />
+      )}
 
-
-      {/* Daftar Siswa */}
       <table className="min-w-full table-auto mt-6 text-sm border">
         <thead className="bg-gray-100">
           <tr>
@@ -259,44 +250,36 @@ const SiswaPage = () => {
         </tbody>
       </table>
 
-    {/* Pagination */}
-<div className="flex justify-center mt-4 gap-2 items-center">
-  {/* Tombol Kembali */}
-  <button
-    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-    className="px-3 py-1 rounded border bg-white hover:bg-gray-200 disabled:opacity-50"
-    disabled={currentPage === 1}
-  >
-    &lt; Prev
-  </button>
+      <div className="flex justify-center mt-4 gap-2 items-center">
+        <button
+          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+          className="px-3 py-1 rounded border bg-white hover:bg-gray-200 disabled:opacity-50"
+          disabled={currentPage === 1}
+        >
+          &lt; Prev
+        </button>
 
-  {/* Nomor Halaman */}
-  {Array.from({ length: totalPages }, (_, i) => (
-    <button
-      key={i}
-      onClick={() => setCurrentPage(i + 1)}
-      className={`px-3 py-1 rounded border ${
-        currentPage === i + 1
-          ? 'bg-blue-600 text-white'
-          : 'bg-white hover:bg-gray-200'
-      }`}
-    >
-      {i + 1}
-    </button>
-  ))}
+        {Array.from({ length: totalPages }, (_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrentPage(i + 1)}
+            className={`px-3 py-1 rounded border ${
+              currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-white hover:bg-gray-200'
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
 
-  {/* Tombol Next */}
-  <button
-    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-    className="px-3 py-1 rounded border bg-white hover:bg-gray-200 disabled:opacity-50"
-    disabled={currentPage === totalPages}
-  >
-    Next &gt;
-  </button>
-</div>
+        <button
+          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+          className="px-3 py-1 rounded border bg-white hover:bg-gray-200 disabled:opacity-50"
+          disabled={currentPage === totalPages}
+        >
+          Next &gt;
+        </button>
+      </div>
 
-
-      {/* Modal Hapus */}
       {showConfirmDelete && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded shadow-lg text-center">
