@@ -16,6 +16,7 @@ interface Perusahaan {
   bidang: string;
   kontak: string;
   kuota: number;
+  stats: string;
   keterangan: string;
   siswa_terdaftar: string[];
 }
@@ -26,6 +27,7 @@ const PerusahaanPage = () => {
   const [alamat, setAlamat] = useState('');
   const [bidang, setBidang] = useState('');
   const [kontak, setKontak] = useState('');
+  const [stats, setStats] = useState('');
   const [keterangan, setKeterangan] = useState('');
   const [kuota, setKuota] = useState<number>(0);
   const [siswaTerdaftar, setSiswaTerdaftar] = useState<string[]>([]);
@@ -62,7 +64,7 @@ const PerusahaanPage = () => {
   }, []);
 
   const handleAdd = async () => {
-    if (!nama || !alamat || !bidang || !kontak || kuota <= 0) {
+    if (!nama || !alamat || !bidang || !kontak || !stats || kuota <= 0) {
       setError("Semua field harus diisi dengan benar.");
       return;
     }
@@ -73,6 +75,7 @@ const PerusahaanPage = () => {
         alamat,
         bidang,
         kontak,
+        stats,
         kuota,
         keterangan,
         siswa_terdaftar: [],
@@ -81,6 +84,7 @@ const PerusahaanPage = () => {
       setAlamat('');
       setBidang('');
       setKontak('');
+      setStats('');
       setKuota(0);
       setKeterangan('');
       setError('');
@@ -107,12 +111,13 @@ const PerusahaanPage = () => {
     setAlamat(alamat);
     setBidang(bidang);
     setKontak(kontak);
+    setStats(stats);
     setKuota(kuota);
     setKeterangan(keterangan);
   };
 
   const handleUpdate = async () => {
-    if (!nama || !alamat || !bidang || !kontak || !keterangan) {
+    if (!nama || !alamat || !bidang || !kontak || !stats || !keterangan) {
       setError("Semua field harus diisi dengan benar.");
       return;
     }
@@ -124,6 +129,7 @@ const PerusahaanPage = () => {
         alamat,
         bidang,
         kontak,
+        stats,
         kuota,
         keterangan,
       });
@@ -132,6 +138,7 @@ const PerusahaanPage = () => {
       setAlamat('');
       setBidang('');
       setKontak('');
+      setStats('');
       setKuota(0);
       setKeterangan('');
       setError('');
@@ -169,6 +176,7 @@ const PerusahaanPage = () => {
     setItemsPerPage(Number(event.target.value));
     setCurrentPage(1);
   };
+
 
   return (
     <div className="max-w-full mx-auto p-4">
@@ -217,6 +225,21 @@ const PerusahaanPage = () => {
               className="w-full p-2 border border-gray-300 rounded-md"
               placeholder="Kontak perusahaan"
             />
+          </div>
+          <div className="mb-2">
+            <label className="block text-sm font-medium">Status</label>
+            <select
+              value={stats}
+              onChange={(e) => setStats(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-md"
+            >
+              <option value="">-- Pilih Status --</option>
+              <option value="sudah di surati">sudah di surati</option>
+              <option value="menunggu surat balasan">menunggu surat balasan</option>
+              <option value="menunggu pengantaran siswa">menunggu pengantaran siswa</option>
+              <option value="siswa sudah di antar">siswa sudah di antar</option>
+              <option value="siswa sudah di jemput">siswa sudah di jemput</option>
+            </select>
           </div>
           <div className="mb-2">
             <label className="block text-sm font-medium">Kuota</label>
@@ -292,6 +315,7 @@ const PerusahaanPage = () => {
               <th className="px-4 py-2">Bidang</th>
               <th className="px-4 py-2">Kontak</th>
               <th className="px-4 py-2">Keterangan</th>
+              <th className="px-4 py-2">stats</th>
               <th className="px-4 py-2">Kuota</th>
               <th className="px-4 py-2">Aksi</th>
             </tr>
@@ -305,6 +329,7 @@ const PerusahaanPage = () => {
                 <td className="px-4 py-2">{per.bidang}</td>
                 <td className="px-4 py-2">{per.kontak}</td>
                 <td className="px-4 py-2">{per.keterangan}</td>
+                <td className="px-4 py-2">{per.stats}</td>
                 <td className="px-4 py-2">{per.kuota}</td>
                 <td className="px-4 py-2 flex space-x-2">
                   {/* Di dalam tabel daftar perusahaan */}
