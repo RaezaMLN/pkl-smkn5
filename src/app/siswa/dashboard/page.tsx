@@ -12,6 +12,7 @@ interface Perusahaan {
   alamat: string;
   kontak: string;
   bidang: string;
+  stats: string;
 
 }
 
@@ -94,21 +95,29 @@ const SiswaDashboardPage = () => {
       </div>
   
       {/* Pendaftaran PKL */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
-        <h2 className="text-xl font-semibold mb-3">📋 Pendaftaran PKL</h2>
-        {pendaftaran && perusahaan ? (
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+  <h2 className="text-xl font-semibold mb-3">📋 Pendaftaran PKL</h2>
+
+  {pendaftaran && perusahaan ? (
+    <>
           <p className="text-green-600">
             Anda sudah mendaftar untuk PKL di <br />
             <span className="text-2xl text-blue-600 font-semibold">{perusahaan.nama}</span>
           </p>
-        ) : (
-          <Link href="/siswa/pendaftaran">
-            <button className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition">
-              Daftar Tempat PKL
-            </button>
-          </Link>
-        )}
-      </div>
+          <p className="mt-4 inline-block bg-indigo-100 dark:bg-indigo-700 text-indigo-800 dark:text-white text-base font-semibold px-4 py-2 rounded-lg shadow-sm">
+            📊 Status: <span className="font-bold">{perusahaan.stats}</span>
+          </p>
+
+        </>
+      ) : (
+        <Link href="/siswa/pendaftaran">
+          <button className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition">
+            Daftar Tempat PKL
+          </button>
+        </Link>
+      )}
+    </div>
+
   
       {/* Info Perusahaan */}
       {perusahaan && (
