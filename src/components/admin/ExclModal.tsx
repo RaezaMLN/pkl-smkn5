@@ -21,6 +21,7 @@ type Perusahaan = {
   kontak: string;
   keterangan: string;
   kuota: number;
+  stats?: string;
   siswa_terdaftar: string[];
 };
 
@@ -39,11 +40,13 @@ type ExcelAlignment = {
 export default function ModalExcl({ open, onClose, data }: Props) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
+  const [filterStatus, setFilterStatus] = useState<string>("Semua");
 
   useEffect(() => {
     if (!open) {
       setSelectedIds([]);
       setSelectAll(false);
+      setFilterStatus("Semua");
     }
   }, [open]);
 
@@ -203,7 +206,7 @@ export default function ModalExcl({ open, onClose, data }: Props) {
 
   const handleSelectAll = (checked: boolean) => {
     setSelectAll(checked);
-    setSelectedIds(checked ? data.map((d) => d.id) : []);
+    setSelectedIds(checked ? filteredData.map((d) => d.id) : []);
   };
 
   const toggleSelect = (id: string) => {
@@ -212,8 +215,12 @@ export default function ModalExcl({ open, onClose, data }: Props) {
       ? selectedIds.filter((item) => item !== id)
       : [...selectedIds, id];
     setSelectedIds(newSelected);
-    setSelectAll(newSelected.length === data.length);
+    setSelectAll(newSelected.length === filteredData.length);
   };
+
+  const filteredData = filterStatus === "Semua"
+    ? data
+    : data.filter((item) => item.stats === filterStatus);
 
   if (!open) return null;
 
@@ -224,7 +231,7 @@ export default function ModalExcl({ open, onClose, data }: Props) {
           Pilih Data untuk Diunduh (Excel)
         </h2>
 
-        <div className="mb-2 flex items-center justify-between">
+        <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <label className="flex items-center cursor-pointer select-none">
             <input
               type="checkbox"
@@ -234,16 +241,28 @@ export default function ModalExcl({ open, onClose, data }: Props) {
             />
             Pilih Semua
           </label>
-          <p className="text-sm text-gray-600">
-            {selectedIds.length} dari {data.length} data dipilih
-          </p>
+
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-gray-600">Filter Status:</label>
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="border rounded px-2 py-1 text-sm"
+            >
+              <option value="sudah di surati">sudah di surati</option>
+              <option value="menunggu surat balasan">menunggu surat balasan</option>
+              <option value="menunggu pengantaran siswa">menunggu pengantaran siswa</option>
+              <option value="siswa sudah di antar">siswa sudah di antar</option>
+              <option value="siswa sudah di jemput">siswa sudah di jemput</option>
+            </select>
+          </div>
         </div>
 
         <div className="max-h-64 overflow-y-auto border rounded p-3 mb-4">
-          {data.length === 0 ? (
+          {filteredData.length === 0 ? (
             <p className="text-center text-gray-500">Data tidak tersedia</p>
           ) : (
-            data.map((item) => (
+            filteredData.map((item) => (
               <label
                 key={item.id}
                 className="flex items-center mb-1 cursor-pointer hover:bg-gray-100 rounded px-1 select-none"
@@ -254,7 +273,7 @@ export default function ModalExcl({ open, onClose, data }: Props) {
                   onChange={() => toggleSelect(item.id)}
                   className="mr-2"
                 />
-                {item.nama}
+                {item.nama} <span className="ml-2 text-xs text-gray-500">({item.stats || "-"})</span>
               </label>
             ))
           )}
