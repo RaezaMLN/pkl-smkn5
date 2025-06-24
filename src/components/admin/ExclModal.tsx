@@ -8,7 +8,7 @@ import { db } from "@/lib/firebase";
 type Siswa = {
   id: string;
   nama: string;
-  nisn: string;
+  hp: string;
   kelas: string;
   jurusan: string;
 };
@@ -18,8 +18,6 @@ type Perusahaan = {
   nama: string;
   alamat: string;
   bidang: string;
-  kontak: string;
-  keterangan: string;
   kuota: number;
   stats?: string;
   siswa_terdaftar: string[];
@@ -31,22 +29,19 @@ interface Props {
   data: Perusahaan[];
 }
 
-type ExcelAlignment = {
-  horizontal?: "left" | "center" | "right";
-  vertical?: "top" | "center" | "bottom";
-  wrapText?: boolean;
-};
-
 export default function ModalExcl({ open, onClose, data }: Props) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>("Semua");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!open) {
       setSelectedIds([]);
       setSelectAll(false);
       setFilterStatus("Semua");
+      setSearchQuery("");
     }
   }, [open]);
 
@@ -57,7 +52,7 @@ export default function ModalExcl({ open, onClose, data }: Props) {
       return {
         id: snap.id,
         nama: data.nama,
-        nisn: data.nisn,
+        hp: data.hp,
         kelas: data.kelas,
         jurusan: data.jurusan,
       };
@@ -71,6 +66,8 @@ export default function ModalExcl({ open, onClose, data }: Props) {
       return;
     }
 
+    setLoading(true);
+
     const workbook = XLSX.utils.book_new();
     const sheetData: any[][] = [];
 
@@ -82,7 +79,12 @@ export default function ModalExcl({ open, onClose, data }: Props) {
       if (!perusahaan) continue;
 
       sheetData.push([`Perusahaan: ${perusahaan.nama}`]);
-      sheetData.push(["No", "Nama Siswa", "NISN", "Kelas", "Jurusan"]);
+      sheetData.push([`Alamat: ${perusahaan.alamat}`]);
+      sheetData.push([`Status: ${perusahaan.stats}`]);
+
+      sheetData.push([]);
+
+      sheetData.push(["No", "Nama Siswa", "No.hp", "Kelas", "Jurusan"]);
 
       const siswaList = await Promise.all(
         perusahaan.siswa_terdaftar.map((id) => getSiswaById(id))
@@ -96,19 +98,20 @@ export default function ModalExcl({ open, onClose, data }: Props) {
           sheetData.push([
             idx + 1,
             siswa.nama,
-            siswa.nisn,
+            siswa.hp,
             siswa.kelas,
             siswa.jurusan,
           ]);
         });
       }
 
+      // sheetData.push([`Jumlah Siswa: ${siswaData.length}`]);
       sheetData.push([]);
     }
 
     const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
-
     const merges = [];
+
     merges.push({ s: { r: 0, c: 0 }, e: { r: 0, c: 4 } });
 
     sheetData.forEach((row, i) => {
@@ -118,7 +121,6 @@ export default function ModalExcl({ open, onClose, data }: Props) {
     });
 
     worksheet["!merges"] = merges;
-
     worksheet["!cols"] = [
       { wch: 5 },
       { wch: 30 },
@@ -161,7 +163,7 @@ export default function ModalExcl({ open, onClose, data }: Props) {
         row.length === 5 &&
         row[0] === "No" &&
         row[1] === "Nama Siswa" &&
-        row[2] === "NISN"
+        row[2] === "No.hp"
       ) {
         for (let col = 0; col <= 4; col++) {
           const cell = XLSX.utils.encode_cell({ r: r, c: col });
@@ -182,7 +184,7 @@ export default function ModalExcl({ open, onClose, data }: Props) {
       if (row.length === 5 && typeof row[0] === "number") {
         for (let col = 0; col <= 4; col++) {
           const cell = XLSX.utils.encode_cell({ r: r, c: col });
-          const alignment: ExcelAlignment = {
+          const alignment = {
             vertical: "center",
             horizontal: col === 0 || col === 2 || col === 3 ? "center" : "left",
           };
@@ -201,6 +203,8 @@ export default function ModalExcl({ open, onClose, data }: Props) {
 
     XLSX.utils.book_append_sheet(workbook, worksheet, "Data Siswa");
     XLSX.writeFile(workbook, "data-siswa-perusahaan.xlsx");
+
+    setLoading(false);
     onClose();
   };
 
@@ -210,23 +214,26 @@ export default function ModalExcl({ open, onClose, data }: Props) {
   };
 
   const toggleSelect = (id: string) => {
-    const isSelected = selectedIds.includes(id);
-    const newSelected = isSelected
-      ? selectedIds.filter((item) => item !== id)
+    const newSelected = selectedIds.includes(id)
+      ? selectedIds.filter((i) => i !== id)
       : [...selectedIds, id];
+
     setSelectedIds(newSelected);
     setSelectAll(newSelected.length === filteredData.length);
   };
 
-  const filteredData = filterStatus === "Semua"
-    ? data
-    : data.filter((item) => item.stats === filterStatus);
+  const filteredData = data.filter((item) => {
+    const matchStatus =
+      filterStatus === "Semua" || item.stats === filterStatus;
+    const matchSearch = item.nama.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchStatus && matchSearch;
+  });
 
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white p-6 rounded-md max-w-3xl w-full max-h-[80vh] overflow-auto shadow-lg">
+      <div className="bg-white p-6 rounded-md max-w-3xl w-full max-h-[90vh] overflow-auto shadow-lg">
         <h2 className="text-lg font-semibold mb-4 text-center">
           Pilih Data untuk Diunduh (Excel)
         </h2>
@@ -243,12 +250,13 @@ export default function ModalExcl({ open, onClose, data }: Props) {
           </label>
 
           <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-600">Filter Status:</label>
+            <label className="text-sm text-gray-600">Status:</label>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
               className="border rounded px-2 py-1 text-sm"
             >
+              <option value="Semua">Semua</option>
               <option value="sudah di surati">sudah di surati</option>
               <option value="menunggu surat balasan">menunggu surat balasan</option>
               <option value="menunggu pengantaran siswa">menunggu pengantaran siswa</option>
@@ -258,9 +266,17 @@ export default function ModalExcl({ open, onClose, data }: Props) {
           </div>
         </div>
 
+        <input
+          type="text"
+          placeholder="Cari nama perusahaan..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full border rounded px-3 py-1 mb-3 text-sm"
+        />
+
         <div className="max-h-64 overflow-y-auto border rounded p-3 mb-4">
           {filteredData.length === 0 ? (
-            <p className="text-center text-gray-500">Data tidak tersedia</p>
+            <p className="text-center text-gray-500">Data tidak ditemukan</p>
           ) : (
             filteredData.map((item) => (
               <label
@@ -288,14 +304,14 @@ export default function ModalExcl({ open, onClose, data }: Props) {
           </button>
           <button
             onClick={handleDownloadExcel}
-            disabled={selectedIds.length === 0}
+            disabled={selectedIds.length === 0 || loading}
             className={`px-4 py-2 rounded text-white transition ${
-              selectedIds.length === 0
+              selectedIds.length === 0 || loading
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-green-600 hover:bg-green-700"
             }`}
           >
-            Download Excel
+            {loading ? "Memproses..." : "Download Excel"}
           </button>
         </div>
       </div>
