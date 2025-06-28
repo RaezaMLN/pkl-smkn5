@@ -6,6 +6,7 @@ import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "firebase
 import SiswaTerdaftarModal from "@/components/siswa/SiswaTerdaftarModal"
 import PdfModal from "@/components/admin/PdfModal"
 import ExclModal from "@/components/admin/ExclModal";
+import { useMemo } from 'react';
 
 
 
@@ -43,6 +44,8 @@ const PerusahaanPage = () => {
   const [modalPdfOpen, setModalPdfOpen] = useState(false);
   const [modalExclOpen, setModalExclOpen] = useState(false);
   const [selectedPerusahaanId, setSelectedPerusahaanId] = useState<string | null>(null);
+  const [filterStats, setFilterStats] = useState("Semua");
+
 
   const handleLihatSiswa = (perusahaanId: string) => {
   setSelectedPerusahaanId(perusahaanId);
@@ -104,7 +107,7 @@ const PerusahaanPage = () => {
     }
   };
 
-  const handleEdit = (id: string, nama: string, alamat: string, bidang: string, kontak: string, keterangan:string, kuota: number) => {
+  const handleEdit = (id: string, nama: string, alamat: string, bidang: string, kontak: string, keterangan:string, kuota: number, stats: string) => {
     setEditMode(true);
     setEditId(id);
     setNama(nama);
@@ -160,13 +163,39 @@ const PerusahaanPage = () => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = perusahaan
-    .filter(per => per.nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  per.alamat.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  per.bidang.toLowerCase().includes(searchQuery.toLowerCase()))
-    .slice(indexOfFirstItem, indexOfLastItem);
 
-  const totalPages = Math.ceil(perusahaan.length / itemsPerPage);
+const currentItems = useMemo(() => {
+  return perusahaan
+    .filter(per => {
+      const matchesSearch =
+        per.nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        per.alamat.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        per.bidang.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesStatus =
+        filterStats === "Semua" || per.stats === filterStats;
+
+      return matchesSearch && matchesStatus;
+    })
+    .slice(indexOfFirstItem, indexOfLastItem);
+}, [perusahaan, searchQuery, filterStats, indexOfFirstItem, indexOfLastItem]);
+
+
+
+const totalPages = useMemo(() => {
+  const filtered = perusahaan.filter(per => {
+    const matchesSearch =
+      per.nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      per.alamat.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      per.bidang.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesStatus = filterStats === "Semua" || per.stats === filterStats;
+
+    return matchesSearch && matchesStatus;
+  });
+
+  return Math.ceil(filtered.length / itemsPerPage);
+}, [perusahaan, searchQuery, filterStats, itemsPerPage]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -263,21 +292,40 @@ const PerusahaanPage = () => {
           </div>
         </div>
 
-        <div className="flex items-center mb-4">
+       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
+        <div className="flex-1 flex items-center gap-2">
           <input
             type="text"
             placeholder="Cari perusahaan..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="p-2 border border-gray-300 rounded-md mr-4"
+            className="w-full sm:w-64 p-2 border border-gray-300 rounded-md"
           />
-          <button
-            onClick={editMode ? handleUpdate : handleAdd}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          <select
+            value={filterStats}
+            onChange={(e) => {
+              setFilterStats(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="p-2 border border-gray-300 rounded-md"
           >
-            {editMode ? "Update Perusahaan" : "Tambah Perusahaan"}
-          </button>
+            <option value="Semua">Semua Status</option>
+            <option value="sudah di surati">sudah di surati</option>
+            <option value="menunggu surat balasan">menunggu surat balasan</option>
+            <option value="menunggu pengantaran siswa">menunggu pengantaran siswa</option>
+            <option value="siswa sudah di antar">siswa sudah di antar</option>
+            <option value="siswa sudah di jemput">siswa sudah di jemput</option>
+          </select>
         </div>
+
+        <button
+          onClick={editMode ? handleUpdate : handleAdd}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 w-full sm:w-auto"
+        >
+          {editMode ? "Update Perusahaan" : "Tambah Perusahaan"}
+        </button>
+      </div>
+
       </div>
        <button
         onClick={() => setModalPdfOpen(true)}
@@ -341,7 +389,7 @@ const PerusahaanPage = () => {
                 </button>
 
                   <button
-                    onClick={() => handleEdit(per.id, per.nama, per.alamat, per.bidang, per.kontak, per.keterangan, per.kuota)}
+                    onClick={() => handleEdit(per.id, per.nama, per.alamat, per.bidang, per.kontak, per.keterangan, per.kuota, per.stats)}
                     className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
                   >
                     Edit
