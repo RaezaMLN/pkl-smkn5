@@ -215,6 +215,7 @@ const SiswaPage = () => {
             <th className="px-2 py-2 border">Email</th>
             <th className="px-2 py-2 border">NISN</th>
             <th className="px-2 py-2 border">Kelas</th>
+            <th className="px-2 py-2 border">No.HP</th>
             <th className="px-2 py-2 border">Aksi</th>
           </tr>
         </thead>
@@ -228,6 +229,8 @@ const SiswaPage = () => {
               <td className="px-2 py-1">{s.email}</td>
               <td className="px-2 py-1">{s.nisn}</td>
               <td className="px-2 py-1">{s.kelas}</td>
+              <td className="px-2 py-1">{s.hp}</td>
+
               <td className="px-2 py-1 space-x-2 text-center">
                 <button
                   onClick={() => handleEdit(s)}
