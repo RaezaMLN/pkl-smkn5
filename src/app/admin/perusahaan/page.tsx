@@ -46,6 +46,29 @@ const PerusahaanPage = () => {
   const [selectedPerusahaanId, setSelectedPerusahaanId] = useState<string | null>(null);
   const [filterStats, setFilterStats] = useState("Semua");
 
+  const resetDataPerusahaan = async () => {
+  try {
+    const snapshot = await getDocs(collection(db, "perusahaan"))
+
+    const promises = snapshot.docs.map((d) => {
+      const ref = doc(db, "perusahaan", d.id)
+
+      return updateDoc(ref, {
+        siswa_terdaftar: [], // ✅ kosongkan, bukan hapus
+        kuota: 4,
+        stats: "belum di ajukan",
+      })
+    })
+
+    await Promise.all(promises)
+
+    alert("Data berhasil di-reset")
+    fetchPerusahaan()
+
+  } catch (error) {
+    console.error("Gagal reset:", error)
+  }
+}
 
   const handleLihatSiswa = (perusahaanId: string) => {
   setSelectedPerusahaanId(perusahaanId);
@@ -351,6 +374,12 @@ const totalPages = useMemo(() => {
   onClose={() => setModalExclOpen(false)}
   data={perusahaan}
 />
+<button
+  onClick={resetDataPerusahaan}
+  className="ml-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+>
+  Reset Data Perusahaan
+</button>
 
 
       <div className="overflow-x-auto">

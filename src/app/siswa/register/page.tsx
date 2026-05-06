@@ -167,10 +167,10 @@ const RegisterPage = () => {
             <option value="XII RPL 1">XII RPL 1</option>
             <option value="XII RPL 2">XII RPL 2</option>
             <option value="XII RPL 3">XII RPL 3</option>
-            <option value="XII TJKT 1">XII TJKT 1</option>
-            <option value="XII TJKT 2">XII TJKT 2</option>
-            <option value="XII TJKT 3">XII TJKT 3</option>
-            <option value="XII TJAT">XII TJAT</option>
+            <option value="XII TKJ 1">XII TKJ 1</option>
+            <option value="XII TKJ 2">XII TKJ 2</option>
+            <option value="XII TJAT 1">XII TJAT 1</option>
+            <option value="XII TJAT 2">XII TJAT 2</option>
             <option value="XII PF 1">XII PF 1</option>
             <option value="XII PF 2">XII PF 2</option>
           </select>
