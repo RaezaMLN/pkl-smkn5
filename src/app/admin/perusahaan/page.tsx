@@ -334,6 +334,7 @@ const totalPages = useMemo(() => {
             className="p-2 border border-gray-300 rounded-md"
           >
             <option value="Semua">Semua Status</option>
+            <option value="belum di surati">belum di surati</option>
             <option value="sudah di surati">sudah di surati</option>
             <option value="menunggu surat balasan">menunggu surat balasan</option>
             <option value="menunggu pengantaran siswa">menunggu pengantaran siswa</option>
