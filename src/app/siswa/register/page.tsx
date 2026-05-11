@@ -179,7 +179,7 @@ const RegisterPage = () => {
             <option value="">Pilih Konsentrasi Keahlian</option>
             <option value="Rekayasa Perangkat Lunak">RPL</option>
             <option value="Teknik Jaringan Akses Telekomunikasi">TJAT</option>
-            <option value="Teknik Jaringan Komputer Telekomunikasi">TJKT</option>
+            <option value="Teknik Komputer Jaringan">TKJ</option>
             <option value="Produksi Film">PF</option>
           </select>
 
