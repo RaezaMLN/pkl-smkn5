@@ -5,7 +5,6 @@ import { db } from "@/lib/firebase";
 import {
   collection,
   getDocs,
-  addDoc,
   getDoc,
   deleteDoc,
   doc,
@@ -16,7 +15,6 @@ interface Pendaftaran {
   id: string;
   perusahaan_id: string;
   siswa_id: string;
-  kelas: string;
   status: string;
   tanggal_daftar: any;
 }
@@ -32,360 +30,237 @@ interface Siswa {
   kelas: string;
 }
 
-const ITEMS_PER_PAGE = 5;
-
 const PendaftaranPage = () => {
   const [pendaftaran, setPendaftaran] = useState<Pendaftaran[]>([]);
   const [perusahaanList, setPerusahaanList] = useState<Perusahaan[]>([]);
   const [siswaList, setSiswaList] = useState<Siswa[]>([]);
-  const [perusahaanId, setPerusahaanId] = useState('');
-  const [siswaId, setSiswaId] = useState('');
-  const [status, setStatus] = useState('');
-  const [editMode, setEditMode] = useState(false);
-  const [editId, setEditId] = useState('');
-  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
-  const [deletingId, setDeletingId] = useState('');
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  const [filterStatus, setFilterStatus] = useState('');
+  const [filterKelas, setFilterKelas] = useState('');
+  const [filterPerusahaan, setFilterPerusahaan] = useState('');
+
   const [currentPage, setCurrentPage] = useState(1);
-
-  const statusOptions = ["menunggu", "diterima", "ditolak"];
-
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
+  const [sortField, setSortField] = useState('');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
-  const fetchMaps = async () => {
-    const perusahaanSnap = await getDocs(collection(db, "perusahaan"));
-    const siswaSnap = await getDocs(collection(db, "siswa"));
-
-    const perusahaanArr: Perusahaan[] = [];
-    perusahaanSnap.forEach(doc => {
-      perusahaanArr.push({ id: doc.id, nama: doc.data().nama });
-    });
-
-    const siswaArr: Siswa[] = [];
-    siswaSnap.forEach(doc => {
-      siswaArr.push({ id: doc.id, nama: doc.data().nama, kelas: doc.data().kelas });
-    });
-
-    setPerusahaanList(perusahaanArr);
-    setSiswaList(siswaArr);
-  };
-
-  const fetchPendaftaran = async () => {
-    try {
-      const querySnapshot = await getDocs(collection(db, "pendaftaran"));
-      const list = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Pendaftaran[];
-      setPendaftaran(list);
-    } catch (error) {
-      console.error("Gagal mengambil data pendaftaran:", error);
-    }
-  };
+  const statusOptions = ["pending", "diterima", "ditolak"];
 
   useEffect(() => {
-    fetchPendaftaran();
-    fetchMaps();
+    fetchData();
   }, []);
 
-  const handleUpdate = async () => {
-    try {
-      await updateDoc(doc(db, "pendaftaran", editId), {
-        perusahaan_id: perusahaanId,
-        siswa_id: siswaId,
-        status,
-      });
-      resetForm();
-      fetchPendaftaran();
-    } catch (error) {
-      console.error("Gagal memperbarui pendaftaran:", error);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const fetchData = async () => {
+    const perusahaanSnap = await getDocs(collection(db, "perusahaan"));
+    const siswaSnap = await getDocs(collection(db, "siswa"));
+    const pendaftaranSnap = await getDocs(collection(db, "pendaftaran"));
+
+    setPerusahaanList(perusahaanSnap.docs.map(d => ({
+      id: d.id,
+      nama: d.data().nama
+    })));
+
+    setSiswaList(siswaSnap.docs.map(d => ({
+      id: d.id,
+      nama: d.data().nama,
+      kelas: d.data().kelas
+    })));
+
+    setPendaftaran(pendaftaranSnap.docs.map(d => ({
+      id: d.id,
+      ...d.data()
+    })) as Pendaftaran[]);
+  };
+
+  const handleStatusUpdate = async (id: string, newStatus: string) => {
+    const ref = doc(db, "pendaftaran", id);
+    const snap = await getDoc(ref);
+    const data = snap.data() as Pendaftaran;
+
+    if (!data) return;
+
+    if (newStatus === "diterima") {
+      const perusahaanRef = doc(db, "perusahaan", data.perusahaan_id);
+      const perusahaanSnap = await getDoc(perusahaanRef);
+
+      if (!perusahaanSnap.exists()) return;
+
+      const perusahaanData = perusahaanSnap.data();
+      const list = perusahaanData.siswa_terdaftar || [];
+
+      if (!list.includes(data.siswa_id)) {
+        list.push(data.siswa_id);
+        await updateDoc(perusahaanRef, { siswa_terdaftar: list });
+      }
+
+      await updateDoc(ref, { status: "diterima" });
+    } else {
+      await updateDoc(ref, { status: newStatus });
     }
-  };
 
-  const handleEdit = (item: Pendaftaran) => {
-    setEditMode(true);
-    setEditId(item.id);
-    setPerusahaanId(item.perusahaan_id);
-    setSiswaId(item.siswa_id);
-    setStatus(item.status);
-  };
-
-  const resetForm = () => {
-    setEditMode(false);
-    setEditId('');
-    setPerusahaanId('');
-    setSiswaId('');
-    setStatus('');
+    fetchData();
   };
 
   const handleDelete = async (id: string) => {
-    try {
-      // Ambil data pendaftaran yang akan dihapus
-      const pendaftaranRef = doc(db, "pendaftaran", id);
-      const pendaftaranSnap = await getDoc(pendaftaranRef);
-      const pendaftaranData = pendaftaranSnap.data() as Pendaftaran;
-  
-      if (!pendaftaranData) {
-        console.error("Data pendaftaran tidak ditemukan.");
-        return;
-      }
-  
-      const perusahaanRef = doc(db, "perusahaan", pendaftaranData.perusahaan_id);
-      const perusahaanSnap = await getDoc(perusahaanRef);
-  
-      if (perusahaanSnap.exists()) {
-        const perusahaanData = perusahaanSnap.data();
-        const currentKuota = perusahaanData.kuota || 0;
-  
-        // Tambah 1 ke kuota
-        await updateDoc(perusahaanRef, {
-          kuota: currentKuota + 1,
-        });
-      }
-  
-      // Hapus pendaftaran
-      await deleteDoc(pendaftaranRef);
-      setShowConfirmDelete(false);
-      fetchPendaftaran();
-    } catch (error) {
-      console.error("Gagal menghapus pendaftaran:", error);
-    }
-  };
-  
-
-  const handleStatusUpdate = async (id: string, newStatus: string) => {
-    try {
-      const pendaftaranRef = doc(db, "pendaftaran", id);
-      const pendaftaranSnap = await getDoc(pendaftaranRef);
-      const pendaftaranData = pendaftaranSnap.data() as Pendaftaran;
-
-      if (newStatus === "diterima") {
-        const perusahaanRef = doc(db, "perusahaan", pendaftaranData.perusahaan_id);
-        const perusahaanSnap = await getDoc(perusahaanRef);
-        const perusahaanData = perusahaanSnap.data();
-
-        if (!perusahaanData) {
-          alert("Data perusahaan tidak ditemukan");
-          return;
-        }
-
-        const updatedSiswaList = perusahaanData.siswa_terdaftar || [];
-        updatedSiswaList.push(pendaftaranData.siswa_id);
-
-        await updateDoc(perusahaanRef, {
-          siswa_terdaftar: updatedSiswaList,
-        });
-
-        await updateDoc(pendaftaranRef, { status: "diterima" });
-        fetchPendaftaran();
-      } else {
-        await updateDoc(pendaftaranRef, { status: newStatus });
-        fetchPendaftaran();
-      }
-    } catch (error) {
-      console.error("Gagal memperbarui status:", error);
-    }
+    const ref = doc(db, "pendaftaran", id);
+    await deleteDoc(ref);
+    fetchData();
   };
 
-  const filteredData = pendaftaran.filter((item) => {
-    const perusahaanNama = perusahaanList.find(p => p.id === item.perusahaan_id)?.nama || '';
-    const siswaNama = siswaList.find(s => s.id === item.siswa_id)?.nama || '';
+  // FILTER
+  const filteredData = pendaftaran.filter(item => {
+    const perusahaan = perusahaanList.find(p => p.id === item.perusahaan_id)?.nama || '';
+    const siswa = siswaList.find(s => s.id === item.siswa_id);
+
+    const statusFix = item.status === "menunggu" ? "pending" : item.status;
+
     return (
-      perusahaanNama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      siswaNama.toLowerCase().includes(searchTerm.toLowerCase())
+      (
+        perusahaan.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        siswa?.nama?.toLowerCase().includes(debouncedSearch.toLowerCase())
+      ) &&
+      (filterStatus === '' || statusFix === filterStatus) &&
+      (filterKelas === '' || siswa?.kelas === filterKelas) &&
+      (filterPerusahaan === '' || item.perusahaan_id === filterPerusahaan)
     );
   });
 
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-const paginatedData = filteredData.slice(
-  (currentPage - 1) * itemsPerPage,
-  currentPage * itemsPerPage
-);
+  // SORT
+  const sortedData = [...filteredData].sort((a, b) => {
+    if (!sortField) return 0;
 
+    let aVal: any;
+    let bVal: any;
+
+    if (sortField === 'siswa') {
+      aVal = siswaList.find(s => s.id === a.siswa_id)?.nama || '';
+      bVal = siswaList.find(s => s.id === b.siswa_id)?.nama || '';
+    } else if (sortField === 'perusahaan') {
+      aVal = perusahaanList.find(p => p.id === a.perusahaan_id)?.nama || '';
+      bVal = perusahaanList.find(p => p.id === b.perusahaan_id)?.nama || '';
+    } else {
+      aVal = a[sortField as keyof Pendaftaran];
+      bVal = b[sortField as keyof Pendaftaran];
+    }
+
+    return sortDirection === 'asc'
+      ? aVal > bVal ? 1 : -1
+      : aVal < bVal ? 1 : -1;
+  });
+
+  const paginatedData = sortedData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
-    <div className="container mx-auto p-4 w-full">
-    <h1 className="text-xl font-semibold mb-4">Manajemen Pendaftaran</h1>
-  
-    <input
-      type="text"
-      placeholder="Cari berdasarkan nama perusahaan atau siswa"
-      value={searchTerm}
-      onChange={(e) => {
-        setSearchTerm(e.target.value);
-        setCurrentPage(1);
-      }}
-      className="mb-4 w-full border px-3 py-2 rounded"
-    />
-  
-    {editMode && (
-      <div className="mb-4 space-y-2">
-        <div>
-          <label className="block font-medium">Perusahaan</label>
-          <select
-            value={perusahaanId}
-            onChange={(e) => setPerusahaanId(e.target.value)}
-            className="w-full border rounded px-3 py-2"
-          >
-            <option value="">-- Pilih Perusahaan --</option>
-            {perusahaanList.map(p => (
-              <option key={p.id} value={p.id}>{p.nama}</option>
-            ))}
-          </select>
-        </div>
-  
-        <div>
-          <label className="block font-medium">Siswa</label>
-          <select
-            value={siswaId}
-            onChange={(e) => setSiswaId(e.target.value)}
-            className="w-full border rounded px-3 py-2"
-          >
-            <option value="">-- Pilih Siswa --</option>
-            {siswaList.map(s => (
-              <option key={s.id} value={s.id}>{s.nama}</option>
-            ))}
-          </select>
-        </div>
-  
-        <div>
-          <label className="block font-medium">Status</label>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="w-full border rounded px-3 py-2"
-          >
-            <option value="">-- Pilih Status --</option>
-            {statusOptions.map(s => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
-        </div>
-  
-        <div className="flex gap-2">
-          <button
-            onClick={handleUpdate}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            Update
-          </button>
-          <button
-            onClick={resetForm}
-            className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
-          >
-            Batal
-          </button>
-        </div>
-      </div>
-    )}
-  
-    {/* Dropdown jumlah data per halaman */}
-    <div className="mb-4">
-      <label className="mr-2 font-medium">Data per halaman:</label>
-      <select
-        value={itemsPerPage}
-        onChange={(e) => {
-          setItemsPerPage(parseInt(e.target.value));
-          setCurrentPage(1);
-        }}
-        className="border rounded px-3 py-1"
-      >
-        {[5, 10, 20, 50].map((count) => (
-          <option key={count} value={count}>{count}</option>
-        ))}
-      </select>
-    </div>
-  
-    <table className="min-w-full table-auto">
-      <thead>
-        <tr>
-          <th className="px-4 py-2 text-left">No</th>
-          <th className="px-4 py-2 text-left">Perusahaan</th>
-          <th className="px-4 py-2 text-left">Siswa</th>
-          <th className="px-4 py-2 text-left">Kelas</th>
-          <th className="px-4 py-2 text-left">Status</th>
-          <th className="px-4 py-2 text-left">Tanggal Daftar</th>
-          <th className="px-4 py-2 text-left">Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        {paginatedData.map((item, index) => {
-          const perusahaanNama = perusahaanList.find(p => p.id === item.perusahaan_id)?.nama || '-';
-          const siswaNama = siswaList.find(s => s.id === item.siswa_id)?.nama || '-';
+    <div className="p-6 bg-gray-50 min-h-screen w-full">
+
+      <h1 className="text-2xl font-bold mb-6">Manajemen Pendaftaran</h1>
+
+      {/* SUMMARY */}
+      <div className="grid md:grid-cols-3 gap-4 mb-6">
+        {["pending","diterima","ditolak"].map(status => {
+          const count = pendaftaran.filter(p =>
+            (p.status === "menunggu" ? "pending" : p.status) === status
+          ).length;
+
           return (
-            <tr key={item.id} className="border-b">
-              <td className="px-4 py-2">{(currentPage - 1) * itemsPerPage + index + 1}</td>
-              <td className="px-4 py-2">{perusahaanNama}</td>
-              <td className="px-4 py-2">{siswaNama}</td>
-              <td className="px-4 py-2 capitalize">{siswaList.find(s => s.id === item.siswa_id)?.kelas || '-'}</td>
-              <td className="px-4 py-2 capitalize">{item.status}</td>
-              <td className="px-4 py-2">{item.tanggal_daftar?.toDate?.().toLocaleString()}</td>
-              <td className="px-4 py-2">
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => handleEdit(item)}
-                    className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => {
-                      setDeletingId(item.id);
-                      setShowConfirmDelete(true);
-                    }}
-                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                  >
-                    Hapus
-                  </button>
-                  <button
-                    onClick={() => handleStatusUpdate(item.id, "diterima")}
-                    className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
-                  >
-                    Terima
-                  </button>
-                  <button
-                    onClick={() => handleStatusUpdate(item.id, "ditolak")}
-                    className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
-                  >
-                    Tolak
-                  </button>
-                </div>
-              </td>
-            </tr>
+            <div key={status} className="bg-white p-4 rounded-xl shadow">
+              <p className="text-sm text-gray-500 capitalize">{status}</p>
+              <h2 className="text-2xl font-bold">{count}</h2>
+            </div>
           );
         })}
-      </tbody>
-    </table>
-  
-    {/* Pagination */}
-    <div className="flex justify-center mt-4 space-x-2">
-      {Array.from({ length: totalPages }).map((_, idx) => (
-        <button
-          key={idx + 1}
-          onClick={() => setCurrentPage(idx + 1)}
-          className={`px-3 py-1 rounded ${currentPage === idx + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-        >
-          {idx + 1}
-        </button>
-      ))}
-    </div>
-  
-    {/* Modal Konfirmasi Hapus */}
-    {showConfirmDelete && (
-      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-        <div className="bg-white p-6 rounded shadow-md">
-          <p className="mb-4">Yakin ingin menghapus pendaftaran ini?</p>
-          <div className="flex justify-end gap-2">
-            <button onClick={() => handleDelete(deletingId)} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Ya</button>
-            <button onClick={() => setShowConfirmDelete(false)} className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">Batal</button>
-          </div>
-        </div>
       </div>
-    )}
-  </div>
-  
+
+      {/* SEARCH */}
+      <input
+        type="text"
+        placeholder="Cari siswa / perusahaan..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="mb-4 w-full border rounded-lg px-4 py-2"
+      />
+
+      {/* FILTER */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+
+        <select value={filterStatus} onChange={(e)=>setFilterStatus(e.target.value)} className="border p-2 rounded">
+          <option value="">Semua Status</option>
+          {statusOptions.map(s => <option key={s}>{s}</option>)}
+        </select>
+
+        <select value={filterKelas} onChange={(e)=>setFilterKelas(e.target.value)} className="border p-2 rounded">
+          <option value="">Semua Kelas</option>
+          {[...new Set(siswaList.map(s => s.kelas))].map(k => <option key={k}>{k}</option>)}
+        </select>
+
+        <select value={filterPerusahaan} onChange={(e)=>setFilterPerusahaan(e.target.value)} className="border p-2 rounded">
+          <option value="">Semua Perusahaan</option>
+          {perusahaanList.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
+        </select>
+
+        <select value={itemsPerPage} onChange={(e)=>setItemsPerPage(parseInt(e.target.value))} className="border p-2 rounded">
+          {[5,10,20,50].map(n => <option key={n}>{n} / halaman</option>)}
+        </select>
+
+      </div>
+
+      {/* TABLE */}
+      <div className="overflow-x-auto bg-white rounded-xl shadow">
+        <table className="w-full">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="px-4 py-3">No</th>
+              <th className="px-4 py-3 cursor-pointer" onClick={()=>setSortField('perusahaan')}>Perusahaan</th>
+              <th className="px-4 py-3 cursor-pointer" onClick={()=>setSortField('siswa')}>Siswa</th>
+              <th className="px-4 py-3">Kelas</th>
+              <th className="px-4 py-3 cursor-pointer" onClick={()=>setSortField('status')}>Status</th>
+              <th className="px-4 py-3 cursor-pointer" onClick={()=>setSortField('tanggal_daftar')}>Tanggal</th>
+              <th className="px-4 py-3">Aksi</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {paginatedData.map((item, i) => {
+              const perusahaan = perusahaanList.find(p => p.id === item.perusahaan_id);
+              const siswa = siswaList.find(s => s.id === item.siswa_id);
+              const statusFix = item.status === "menunggu" ? "pending" : item.status;
+
+              return (
+                <tr key={item.id} className="border-t hover:bg-gray-50">
+                  <td className="px-4 py-3">{i+1}</td>
+                  <td className="px-4 py-3">{perusahaan?.nama}</td>
+                  <td className="px-4 py-3">{siswa?.nama}</td>
+                  <td className="px-4 py-3">{siswa?.kelas}</td>
+                  <td className="px-4 py-3">{statusFix}</td>
+                  <td className="px-4 py-3">{item.tanggal_daftar?.toDate?.().toLocaleDateString()}</td>
+                  <td className="px-4 py-3 flex gap-2">
+                    <button onClick={()=>handleStatusUpdate(item.id,"diterima")} className="bg-green-500 text-white px-2 py-1 rounded">✔</button>
+                    <button onClick={()=>handleStatusUpdate(item.id,"ditolak")} className="bg-gray-500 text-white px-2 py-1 rounded">✖</button>
+                    <button onClick={()=>handleDelete(item.id)} className="bg-red-500 text-white px-2 py-1 rounded">🗑</button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+
+        </table>
+      </div>
+
+    </div>
   );
 };
 
