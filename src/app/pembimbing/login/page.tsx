@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { User, Lock, LogIn } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { User, Lock, LogIn, AlertCircle } from 'lucide-react';
 
 export default function LoginPembimbing() {
   const router = useRouter();
@@ -14,8 +14,22 @@ export default function LoginPembimbing() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const [toast, setToast] = useState<{
+    type: 'error' | 'success';
+    message: string;
+  } | null>(null);
+
   const handleLogin = async () => {
+    if (!nik || !password) {
+      setToast({
+        type: 'error',
+        message: 'NIK dan password harus diisi',
+      });
+      return;
+    }
+
     setLoading(true);
+
     try {
       const q = query(
         collection(db, 'pembimbing'),
@@ -37,27 +51,66 @@ export default function LoginPembimbing() {
           })
         );
 
-        router.push('/pembimbing/dashboard');
+        setToast({
+          type: 'success',
+          message: 'Login berhasil!',
+        });
+
+        setTimeout(() => {
+          router.push('/pembimbing/dashboard');
+        }, 800);
       } else {
-        alert('NIK atau password salah');
+        setToast({
+          type: 'error',
+          message: 'NIK atau password salah',
+        });
       }
     } catch (err) {
       console.error(err);
-      alert('Login gagal');
+      setToast({
+        type: 'error',
+        message: 'Terjadi kesalahan saat login',
+      });
     } finally {
       setLoading(false);
     }
   };
 
+  // Auto hide toast
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-600 to-blue-800">
-      
+
+      {/* TOAST */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ y: -60, opacity: 0 }}
+            animate={{ y: 20, opacity: 1 }}
+            exit={{ y: -60, opacity: 0 }}
+            className={`fixed top-0 left-1/2 -translate-x-1/2 px-5 py-3 rounded-lg shadow-lg flex items-center gap-2 text-white z-50 ${
+              toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'
+            }`}
+          >
+            <AlertCircle className="w-4 h-4" />
+            {toast.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* CARD */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 w-full max-w-md"
       >
-        {/* Header */}
+        {/* HEADER */}
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
             Login Pembimbing
@@ -67,7 +120,7 @@ export default function LoginPembimbing() {
           </p>
         </div>
 
-        {/* Input NIK */}
+        {/* INPUT NIK */}
         <div className="mb-4">
           <label className="text-sm text-gray-600 dark:text-gray-300">
             NIK (Username)
@@ -84,7 +137,7 @@ export default function LoginPembimbing() {
           </div>
         </div>
 
-        {/* Input Password */}
+        {/* INPUT PASSWORD */}
         <div className="mb-6">
           <label className="text-sm text-gray-600 dark:text-gray-300">
             Password
@@ -101,7 +154,7 @@ export default function LoginPembimbing() {
           </div>
         </div>
 
-        {/* Button */}
+        {/* BUTTON */}
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={handleLogin}

@@ -7,6 +7,7 @@ import SiswaTerdaftarModal from "@/components/siswa/SiswaTerdaftarModal"
 import PdfModal from "@/components/admin/PdfModal"
 import ExclModal from "@/components/admin/ExclModal";
 import { useMemo } from 'react';
+import { getDoc } from "firebase/firestore";
 
 
 
@@ -20,6 +21,7 @@ interface Perusahaan {
   stats: string;
   keterangan: string;
   siswa_terdaftar: string[];
+  pembimbingId?: string; // ✅ TAMBAH INI
 }
 
 const PerusahaanPage = () => {
@@ -45,6 +47,8 @@ const PerusahaanPage = () => {
   const [modalExclOpen, setModalExclOpen] = useState(false);
   const [selectedPerusahaanId, setSelectedPerusahaanId] = useState<string | null>(null);
   const [filterStats, setFilterStats] = useState("Semua");
+  const [pembimbingList, setPembimbingList] = useState<any[]>([]);
+  const [pembimbingId, setPembimbingId] = useState('');
 
   // reset data perusahaan (kosongkan siswa_terdaftar, set kuota ke 4, set stats ke "belum di ajukan")
 //   const resetDataPerusahaan = async () => {
@@ -71,6 +75,30 @@ const PerusahaanPage = () => {
 //   }
 // }
 
+const syncPembimbingToSiswa = async (perusahaanId: string, guruId: string) => {
+  const perusahaanRef = doc(db, "perusahaan", perusahaanId);
+  const snap = await getDoc(perusahaanRef);
+
+  if (!snap.exists()) return;
+
+  const siswaList = snap.data().siswa_terdaftar || [];
+
+  for (const siswaId of siswaList) {
+    await updateDoc(doc(db, "siswa", siswaId), {
+      pembimbingId: guruId
+    });
+  }
+};
+
+const fetchPembimbing = async () => {
+  const snap = await getDocs(collection(db, "pembimbing"));
+  const data = snap.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
+  setPembimbingList(data);
+};
+
   const handleLihatSiswa = (perusahaanId: string) => {
   setSelectedPerusahaanId(perusahaanId);
   setModalOpen(true);
@@ -88,6 +116,7 @@ const PerusahaanPage = () => {
 
   useEffect(() => {
     fetchPerusahaan();
+     fetchPembimbing(); // ✅ TAMBAH
   }, []);
 
   const handleAdd = async () => {
@@ -106,6 +135,7 @@ const PerusahaanPage = () => {
         kuota,
         keterangan,
         siswa_terdaftar: [],
+        pembimbingId, // ✅ TAMBAH
       });
       setNama('');
       setAlamat('');
@@ -144,36 +174,44 @@ const PerusahaanPage = () => {
   };
 
   const handleUpdate = async () => {
-    if (!nama || !alamat || !bidang || !kontak || !stats || !keterangan) {
-      setError("Semua field harus diisi dengan benar.");
-      return;
-    }
+  if (!nama || !alamat || !bidang || !kontak || !stats || !keterangan) {
+    setError("Semua field harus diisi dengan benar.");
+    return;
+  }
 
-    try {
-      const perusahaanRef = doc(db, "perusahaan", editId);
-      await updateDoc(perusahaanRef, {
-        nama,
-        alamat,
-        bidang,
-        kontak,
-        stats,
-        kuota,
-        keterangan,
-      });
-      setEditMode(false);
-      setNama('');
-      setAlamat('');
-      setBidang('');
-      setKontak('');
-      setStats('');
-      setKuota(0);
-      setKeterangan('');
-      setError('');
-      fetchPerusahaan();
-    } catch (error) {
-      console.error("Gagal memperbarui perusahaan:", error);
-    }
-  };
+  try {
+    const perusahaanRef = doc(db, "perusahaan", editId);
+
+    await updateDoc(perusahaanRef, {
+      nama,
+      alamat,
+      bidang,
+      kontak,
+      stats,
+      kuota,
+      keterangan,
+      pembimbingId,
+    });
+
+    // 🔥 INI BAGIAN PALING PENTING
+    await syncPembimbingToSiswa(editId, pembimbingId);
+
+    setEditMode(false);
+    setNama('');
+    setAlamat('');
+    setBidang('');
+    setKontak('');
+    setStats('');
+    setKuota(0);
+    setKeterangan('');
+    setError('');
+
+    fetchPerusahaan();
+
+  } catch (error) {
+    console.error("Gagal memperbarui perusahaan:", error);
+  }
+};
 
   const handleConfirmDelete = (id: string) => {
     setDeletingId(id);
@@ -314,6 +352,21 @@ const totalPages = useMemo(() => {
               className="w-full p-2 border border-gray-300 rounded-md"
               placeholder="Keterangan"
             />
+          </div>
+          <div className="mb-2">
+            <label className="block text-sm font-medium">Pembimbing</label>
+            <select
+              value={pembimbingId}
+              onChange={(e) => setPembimbingId(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-md"
+            >
+              <option value="">-- Pilih Pembimbing --</option>
+              {pembimbingList.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.nama}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
