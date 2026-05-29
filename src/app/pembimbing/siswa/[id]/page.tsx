@@ -23,6 +23,14 @@ export default function DetailSiswaPage() {
   const [laporan, setLaporan] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Check if still logged in
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem('isPembimbingLoggedIn');
+    if (isLoggedIn !== 'true') {
+      router.replace('/pembimbing/login');
+    }
+  }, [router]);
+
   useEffect(() => {
     const fetchDetail = async () => {
       try {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { db } from '@/lib/firebase';
 import {
   collection,
@@ -19,11 +20,20 @@ import {
 import ExportModal from '@/components/pembimbing/ExportModal';
 
 export default function LaporanPembimbingPage() {
+  const router = useRouter();
   const [groupedData, setGroupedData] = useState<any[]>([]);
   const [openId, setOpenId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [alertMsg, setAlertMsg] = useState('');
+
+  // Check if still logged in
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem('isPembimbingLoggedIn');
+    if (isLoggedIn !== 'true') {
+      router.replace('/pembimbing/login');
+    }
+  }, [router]);
 
   // 🔥 FILTER
   const [search, setSearch] = useState('');

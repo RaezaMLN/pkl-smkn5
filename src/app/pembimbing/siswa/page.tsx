@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { db } from '@/lib/firebase';
 import {
   collection,
@@ -8,14 +9,21 @@ import {
   doc,
   getDoc,
 } from 'firebase/firestore';
-import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Users, Eye } from 'lucide-react';
 
 export default function SiswaBimbinganPage() {
+  const router = useRouter();
   const [siswa, setSiswa] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
+
+  // Check if still logged in
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem('isPembimbingLoggedIn');
+    if (isLoggedIn !== 'true') {
+      router.replace('/pembimbing/login');
+    }
+  }, [router]);
 
   useEffect(() => {
     const fetchData = async () => {

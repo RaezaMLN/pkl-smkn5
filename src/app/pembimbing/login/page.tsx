@@ -57,8 +57,8 @@ export default function LoginPembimbing() {
         });
 
         setTimeout(() => {
-          router.push('/pembimbing/dashboard');
-        }, 800);
+          window.location.href = '/pembimbing/dashboard';
+        }, 500);
       } else {
         setToast({
           type: 'error',

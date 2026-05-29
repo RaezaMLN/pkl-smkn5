@@ -2,65 +2,106 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+
 import Sidebar from '@/components/pembimbing/Sidebar';
 import Navbar from '@/components/pembimbing/Navbar';
 import Footer from '@/components/pembimbing/Footer';
 
-export default function PembimbingLayout({ children }: { children: React.ReactNode }) {
+interface Pembimbing {
+  id?: string;
+  [key: string]: any;
+}
+
+export default function PembimbingLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
   const router = useRouter();
 
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
-  const [pembimbing, setPembimbing] = useState<any | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [pembimbing, setPembimbing] = useState<Pembimbing | null>(null);
 
-  const isAuthPage = pathname === '/pembimbing/login';
+  const isAuthPage = pathname.startsWith('/pembimbing/login');
 
-  // 🔥 FIX UTAMA: re-check saat route berubah
   useEffect(() => {
-    const loginStatus = localStorage.getItem('isPembimbingLoggedIn');
-    const pembimbingData = localStorage.getItem('pembimbing');
-
-    if (loginStatus === 'true' && pembimbingData) {
+    const checkAuth = () => {
       try {
-        setPembimbing(JSON.parse(pembimbingData));
-        setIsLoggedIn(true);
-      } catch {
+        const loginStatus =
+          localStorage.getItem('isPembimbingLoggedIn') === 'true';
+
+        const pembimbingData = localStorage.getItem('pembimbing');
+
+        if (loginStatus && pembimbingData) {
+          const parsed = JSON.parse(pembimbingData);
+
+          setPembimbing(parsed);
+          setIsLoggedIn(true);
+        } else {
+          setPembimbing(null);
+          setIsLoggedIn(false);
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+
+        localStorage.removeItem('isPembimbingLoggedIn');
+        localStorage.removeItem('pembimbing');
+
+        setPembimbing(null);
         setIsLoggedIn(false);
+      } finally {
+        setAuthChecked(true);
       }
-    } else {
-      setIsLoggedIn(false);
-    }
-  }, [pathname]); // ✅ INI KUNCI FIX
+    };
 
-  // redirect kalau belum login
+    checkAuth();
+
+    window.addEventListener('storage', checkAuth);
+
+    return () => {
+      window.removeEventListener('storage', checkAuth);
+    };
+  }, [pathname]);
+
   useEffect(() => {
-    if (isLoggedIn === false && !isAuthPage) {
-      router.replace('/pembimbing/login');
-    }
-  }, [isLoggedIn, isAuthPage, router]);
+    if (!authChecked) return;
 
-  // loading state
-  if (isLoggedIn === null) {
+    // Belum login
+    if (!isLoggedIn && !isAuthPage) {
+      router.replace('/pembimbing/login');
+      return;
+    }
+
+    // Sudah login tapi buka halaman login
+    if (isLoggedIn && isAuthPage) {
+      router.replace('/pembimbing/dashboard');
+    }
+  }, [authChecked, isLoggedIn, isAuthPage, router]);
+
+  if (!authChecked) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen">
         Loading...
       </div>
     );
   }
 
-  // halaman login (tanpa layout)
+  // Halaman login tanpa layout
   if (isAuthPage) {
     return <>{children}</>;
   }
 
-  // layout utama
   return (
     <div className="flex min-h-screen">
       <Sidebar />
 
       <div className="flex flex-col flex-1">
         <Navbar pembimbing={pembimbing} />
-        <main className="flex-1 p-4">{children}</main>
+        <main className="flex-1 p-4">
+          {children}
+        </main>
         <Footer />
       </div>
     </div>
