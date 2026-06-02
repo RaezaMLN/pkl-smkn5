@@ -557,6 +557,7 @@ const totalPages = useMemo(() => {
   isOpen={modalOpen}
   onClose={() => setModalOpen(false)}
   perusahaanId={selectedPerusahaanId}
+  canDelete={true}
 />
 
     </div>

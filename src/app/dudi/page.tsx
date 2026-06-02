@@ -175,13 +175,17 @@ export default function ListDudi() {
             </div>
            
             <div className="mt-3">
-              <p
-                className={`text-sm font-semibold ${
-                  company.kuota > 0 ? 'text-green-600' : 'text-red-500'
+              <span
+                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${
+                  company.kuota > 0
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
                 }`}
               >
-                Kuota: {company.kuota} siswa
-              </p>
+                {company.kuota > 0
+                  ? `🟢 ${company.kuota} Kuota`
+                  : "🔴 Penuh"}
+              </span>
             </div>
           </Card>
         ))}
@@ -210,11 +214,12 @@ export default function ListDudi() {
 
    
 
-      <SiswaTerdaftarModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        perusahaanId={selectedPerusahaanId}
-      />
+     <SiswaTerdaftarModal
+  isOpen={modalOpen}
+  onClose={() => setModalOpen(false)}
+  perusahaanId={selectedPerusahaanId}
+  canDelete={false}
+/>
     </div>
     </div>
   );

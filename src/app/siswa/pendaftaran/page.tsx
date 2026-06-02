@@ -237,24 +237,34 @@ useEffect(() => {
                 </button>
             </div>
             <div className="mt-3">
-              <p
-                className={`text-sm font-semibold ${
-                  company.kuota > 0 ? 'text-green-600' : 'text-red-500'
-                }`}
-              >
-                Kuota: {company.kuota} siswa
-              </p>
+              {company.kuota > 0 ? (
+                <span className="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-semibold">
+                  🟢 {company.kuota} Kuota
+                </span>
+              ) : (
+                <span className="inline-flex items-center px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm font-semibold">
+                  🔴 Penuh
+                </span>
+              )}
             </div>
             <button
-  className="mt-4 bg-blue-500 text-white py-2 px-6 rounded-full hover:bg-blue-600 w-full disabled:bg-gray-400"
+  className={`mt-4 py-2 px-6 rounded-full w-full text-white font-medium transition
+    ${
+      company.kuota <= 0
+        ? "bg-red-500 cursor-not-allowed"
+        : siswaSudahPernahDaftar
+        ? "bg-gray-500 cursor-not-allowed"
+        : "bg-blue-500 hover:bg-blue-600"
+    }
+  `}
   onClick={() => openModal(company.id)}
   disabled={company.kuota <= 0 || siswaSudahPernahDaftar}
 >
   {company.kuota <= 0
-    ? 'Kuota Penuh'
+    ? "🔴 Penuh"
     : siswaSudahPernahDaftar
-    ? 'Sudah Mendaftar'
-    : 'Daftar Sekarang'}
+    ? "✅ Sudah Mendaftar"
+    : "🚀 Daftar Sekarang"}
 </button>
 
           </Card>
@@ -295,11 +305,12 @@ useEffect(() => {
         
       />
 
-      <SiswaTerdaftarModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        perusahaanId={selectedPerusahaanId}
-      />
+     <SiswaTerdaftarModal
+  isOpen={modalOpen}
+  onClose={() => setModalOpen(false)}
+  perusahaanId={selectedPerusahaanId}
+  canDelete={false}
+/>
     </div>
   );
 }
