@@ -49,6 +49,7 @@ const PendaftaranPage = () => {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   const statusOptions = ["pending", "diterima", "ditolak"];
+  
 
   useEffect(() => {
     fetchData();
@@ -60,6 +61,16 @@ const PendaftaranPage = () => {
     }, 400);
     return () => clearTimeout(timer);
   }, [searchTerm]);
+
+  useEffect(() => {
+  setCurrentPage(1);
+}, [
+  searchTerm,
+  filterStatus,
+  filterKelas,
+  filterPerusahaan,
+  itemsPerPage
+]);
 
   const fetchData = async () => {
     const perusahaanSnap = await getDocs(collection(db, "perusahaan"));
@@ -163,6 +174,36 @@ const PendaftaranPage = () => {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+  const totalPages = Math.ceil(
+  sortedData.length / itemsPerPage
+);
+
+const handleSort = (field: string) => {
+  if (sortField === field) {
+    setSortDirection(
+      sortDirection === "asc"
+        ? "desc"
+        : "asc"
+    );
+  } else {
+    setSortField(field);
+    setSortDirection("asc");
+  }
+};
+
+const getPageNumbers = () => {
+  const pages = [];
+
+  for (
+    let i = Math.max(1, currentPage - 2);
+    i <= Math.min(totalPages, currentPage + 2);
+    i++
+  ) {
+    pages.push(i);
+  }
+
+  return pages;
+};
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen w-full">
@@ -243,11 +284,11 @@ const PendaftaranPage = () => {
           <thead className="bg-gray-100">
             <tr>
               <th className="px-4 py-3">No</th>
-              <th className="px-4 py-3 cursor-pointer" onClick={()=>setSortField('perusahaan')}>Perusahaan</th>
-              <th className="px-4 py-3 cursor-pointer" onClick={()=>setSortField('siswa')}>Siswa</th>
+              <th className="px-4 py-3 cursor-pointer" onClick={()=>handleSort("perusahaan")}>Perusahaan</th>
+              <th className="px-4 py-3 cursor-pointer" onClick={()=>handleSort("siswa")}>Siswa</th>
               <th className="px-4 py-3">Kelas</th>
-              <th className="px-4 py-3 cursor-pointer" onClick={()=>setSortField('status')}>Status</th>
-              <th className="px-4 py-3 cursor-pointer" onClick={()=>setSortField('tanggal_daftar')}>Tanggal</th>
+              <th className="px-4 py-3 cursor-pointer" onClick={()=>handleSort("status")}>Status</th>
+              <th className="px-4 py-3 cursor-pointer" onClick={()=>handleSort("tanggal_daftar")}>Tanggal</th>
               <th className="px-4 py-3">Aksi</th>
             </tr>
           </thead>
@@ -265,9 +306,26 @@ const PendaftaranPage = () => {
                   </td>
                   <td className="px-4 py-3">{perusahaan?.nama}</td>
                   <td className="px-4 py-3">{siswa?.nama}</td>
-                  <td className="px-4 py-3">{siswa?.kelas}</td>
-                  <td className="px-4 py-3">{statusFix}</td>
-                  <td className="px-4 py-3">{item.tanggal_daftar?.toDate?.().toLocaleDateString()}</td>
+                  <td className="px-4 py-3">
+                    <span className="px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs">
+                      {siswa?.kelas}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium
+                          ${
+                            statusFix === "diterima"
+                              ? "bg-green-100 text-green-700"
+                              : statusFix === "ditolak"
+                              ? "bg-red-100 text-red-700"
+                              : "bg-yellow-100 text-yellow-700"
+                          }
+                        `}
+                      >
+                        {statusFix}
+                      </span>
+                    </td>                  <td className="px-4 py-3">{item.tanggal_daftar?.toDate?.().toLocaleDateString()}</td>
                   <td className="px-4 py-3 flex gap-2">
                     <button onClick={()=>handleStatusUpdate(item.id,"diterima")} className="bg-green-500 text-white px-2 py-1 rounded">✔</button>
                     <button onClick={()=>handleStatusUpdate(item.id,"ditolak")} className="bg-gray-500 text-white px-2 py-1 rounded">✖</button>
@@ -280,6 +338,56 @@ const PendaftaranPage = () => {
 
         </table>
       </div>
+      {/* PAGINATION */}
+<div className="flex justify-between items-center mt-6">
+
+  <p className="text-sm text-gray-500">
+    Total {sortedData.length} data
+  </p>
+
+  <div className="flex gap-2">
+
+    <button
+      disabled={currentPage === 1}
+      onClick={() =>
+        setCurrentPage(currentPage - 1)
+      }
+      className="px-3 py-2 border rounded disabled:opacity-50"
+    >
+      Prev
+    </button>
+
+    {getPageNumbers().map((page) => (
+      <button
+        key={page}
+        onClick={() =>
+          setCurrentPage(page)
+        }
+        className={`px-3 py-2 rounded ${
+          currentPage === page
+            ? "bg-blue-600 text-white"
+            : "border"
+        }`}
+      >
+        {page}
+      </button>
+    ))}
+
+    <button
+      disabled={
+        currentPage === totalPages
+      }
+      onClick={() =>
+        setCurrentPage(currentPage + 1)
+      }
+      className="px-3 py-2 border rounded disabled:opacity-50"
+    >
+      Next
+    </button>
+
+  </div>
+
+</div>
 
     </div>
   );
