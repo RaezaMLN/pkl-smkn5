@@ -199,12 +199,24 @@ const PendaftaranPage = () => {
 
         <select value={filterStatus} onChange={(e)=>setFilterStatus(e.target.value)} className="border p-2 rounded">
           <option value="">Semua Status</option>
-          {statusOptions.map(s => <option key={s}>{s}</option>)}
+          {statusOptions.map((s) => (
+            <option key={s} value={s}>
+              {s}
+            </option>
+          ))}
         </select>
 
         <select value={filterKelas} onChange={(e)=>setFilterKelas(e.target.value)} className="border p-2 rounded">
           <option value="">Semua Kelas</option>
-          {[...new Set(siswaList.map(s => s.kelas))].map(k => <option key={k}>{k}</option>)}
+         {[...new Set(siswaList.map((s) => s.kelas))]
+            .map((k, index) => (
+              <option
+                key={`${k}-${index}`}
+                value={k}
+              >
+                {k}
+              </option>
+          ))}
         </select>
 
         <select value={filterPerusahaan} onChange={(e)=>setFilterPerusahaan(e.target.value)} className="border p-2 rounded">
@@ -213,7 +225,14 @@ const PendaftaranPage = () => {
         </select>
 
         <select value={itemsPerPage} onChange={(e)=>setItemsPerPage(parseInt(e.target.value))} className="border p-2 rounded">
-          {[5,10,20,50].map(n => <option key={n}>{n} / halaman</option>)}
+          {[5, 10, 20, 50].map((n) => (
+            <option
+              key={n}
+              value={n}
+            >
+              {n} / halaman
+            </option>
+          ))}
         </select>
 
       </div>
@@ -241,7 +260,9 @@ const PendaftaranPage = () => {
 
               return (
                 <tr key={item.id} className="border-t hover:bg-gray-50">
-                  <td className="px-4 py-3">{i+1}</td>
+                  <td className="px-4 py-3">
+                    {(currentPage - 1) * itemsPerPage + i + 1}
+                  </td>
                   <td className="px-4 py-3">{perusahaan?.nama}</td>
                   <td className="px-4 py-3">{siswa?.nama}</td>
                   <td className="px-4 py-3">{siswa?.kelas}</td>
