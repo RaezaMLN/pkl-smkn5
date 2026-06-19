@@ -35,7 +35,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (isLoginPage) {
     return (
-      <div className="flex min-h-screen bg-white">
+      <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
         <main className="flex-grow container mx-auto px-4 py-6">
           {children}
         </main>
@@ -44,7 +44,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex min-h-screen bg-white">
+    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       <div className="flex-1 flex flex-col">
         <Header />

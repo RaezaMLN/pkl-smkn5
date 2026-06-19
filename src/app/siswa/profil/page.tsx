@@ -242,12 +242,12 @@ const opsiNonTeknis = [
   
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <h2 className="text-2xl font-semibold mb-6">Profil Siswa</h2>
+    <div className="p-6 max-w-2xl mx-auto bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
+      <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">Profil Siswa</h2>
 
       {profile ? (
         <>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4 bg-white dark:bg-gray-800 p-6 rounded-lg">
           {[
             { id: 'nama', label: 'Nama' },
             { id: 'nisn', label: 'NISN' },
@@ -269,19 +269,19 @@ const opsiNonTeknis = [
        
           ].map((field) => (
             <div key={field.id}>
-              <label htmlFor={field.id} className="block text-sm font-medium text-gray-700">{field.label}</label>
+              <label htmlFor={field.id} className="block text-sm font-medium text-gray-700 dark:text-gray-300">{field.label}</label>
               <input
                 id={field.id}
                 name={field.id}
                 type="text"
                 value={(formData as any)[field.id]}
                 onChange={handleChange}
-                className="mt-1 p-2 w-full border rounded-md"
+                className="mt-1 p-2 w-full border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
             </div>
           ))}
 
-        <label className="block text-sm font-medium text-gray-700">Agama</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Agama</label>
         <CreatableSelect
           isClearable
           options={opsiAgama}
@@ -295,7 +295,7 @@ const opsiNonTeknis = [
           className="mb-4"
         />
 
-        <label className="block text-sm font-medium text-gray-700">Kewarganegaraan</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Kewarganegaraan</label>
         <CreatableSelect
           isClearable
           options={opsiKewarganegaraan}
@@ -310,7 +310,7 @@ const opsiNonTeknis = [
         />
 
 
-          <span className="block text-md font-bold text-2xl my-5 text-gray-700">Pendidikan</span>
+          <span className="block text-md font-bold text-2xl my-5 text-gray-700 dark:text-gray-300">Pendidikan</span>
           {[
             { id: 'p_sd', label: 'SD/sederajat' },
             { id: 'p_smp', label: 'SMP/sederajat' },

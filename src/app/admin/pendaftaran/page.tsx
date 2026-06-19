@@ -206,9 +206,9 @@ const getPageNumbers = () => {
 };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen w-full">
+    <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen w-full transition-colors duration-300">
 
-      <h1 className="text-2xl font-bold mb-6">Manajemen Pendaftaran</h1>
+      <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Manajemen Pendaftaran</h1>
 
       {/* SUMMARY */}
       <div className="grid md:grid-cols-3 gap-4 mb-6">
@@ -218,9 +218,9 @@ const getPageNumbers = () => {
           ).length;
 
           return (
-            <div key={status} className="bg-white p-4 rounded-xl shadow">
-              <p className="text-sm text-gray-500 capitalize">{status}</p>
-              <h2 className="text-2xl font-bold">{count}</h2>
+            <div key={status} className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow dark:shadow-lg">
+              <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">{status}</p>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{count}</h2>
             </div>
           );
         })}
@@ -232,13 +232,13 @@ const getPageNumbers = () => {
         placeholder="Cari siswa / perusahaan..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        className="mb-4 w-full border rounded-lg px-4 py-2"
+        className="mb-4 w-full border rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
       />
 
       {/* FILTER */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
 
-        <select value={filterStatus} onChange={(e)=>setFilterStatus(e.target.value)} className="border p-2 rounded">
+        <select value={filterStatus} onChange={(e)=>setFilterStatus(e.target.value)} className="border p-2 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600">
           <option value="">Semua Status</option>
           {statusOptions.map((s) => (
             <option key={s} value={s}>
@@ -247,7 +247,7 @@ const getPageNumbers = () => {
           ))}
         </select>
 
-        <select value={filterKelas} onChange={(e)=>setFilterKelas(e.target.value)} className="border p-2 rounded">
+        <select value={filterKelas} onChange={(e)=>setFilterKelas(e.target.value)} className="border p-2 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600">
           <option value="">Semua Kelas</option>
          {[...new Set(siswaList.map((s) => s.kelas))]
             .map((k, index) => (
@@ -260,12 +260,12 @@ const getPageNumbers = () => {
           ))}
         </select>
 
-        <select value={filterPerusahaan} onChange={(e)=>setFilterPerusahaan(e.target.value)} className="border p-2 rounded">
+        <select value={filterPerusahaan} onChange={(e)=>setFilterPerusahaan(e.target.value)} className="border p-2 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600">
           <option value="">Semua Perusahaan</option>
           {perusahaanList.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
         </select>
 
-        <select value={itemsPerPage} onChange={(e)=>setItemsPerPage(parseInt(e.target.value))} className="border p-2 rounded">
+        <select value={itemsPerPage} onChange={(e)=>setItemsPerPage(parseInt(e.target.value))} className="border p-2 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600">
           {[5, 10, 20, 50].map((n) => (
             <option
               key={n}
@@ -279,17 +279,17 @@ const getPageNumbers = () => {
       </div>
 
       {/* TABLE */}
-      <div className="overflow-x-auto bg-white rounded-xl shadow">
+      <div className="overflow-x-auto bg-white dark:bg-gray-800 rounded-xl shadow dark:shadow-lg">
         <table className="w-full">
-          <thead className="bg-gray-100">
+          <thead className="bg-gray-100 dark:bg-gray-700">
             <tr>
-              <th className="px-4 py-3">No</th>
-              <th className="px-4 py-3 cursor-pointer" onClick={()=>handleSort("perusahaan")}>Perusahaan</th>
-              <th className="px-4 py-3 cursor-pointer" onClick={()=>handleSort("siswa")}>Siswa</th>
-              <th className="px-4 py-3">Kelas</th>
-              <th className="px-4 py-3 cursor-pointer" onClick={()=>handleSort("status")}>Status</th>
-              <th className="px-4 py-3 cursor-pointer" onClick={()=>handleSort("tanggal_daftar")}>Tanggal</th>
-              <th className="px-4 py-3">Aksi</th>
+              <th className="px-4 py-3 text-gray-900 dark:text-white">No</th>
+              <th className="px-4 py-3 cursor-pointer text-gray-900 dark:text-white" onClick={()=>handleSort("perusahaan")}>Perusahaan</th>
+              <th className="px-4 py-3 cursor-pointer text-gray-900 dark:text-white" onClick={()=>handleSort("siswa")}>Siswa</th>
+              <th className="px-4 py-3 text-gray-900 dark:text-white">Kelas</th>
+              <th className="px-4 py-3 cursor-pointer text-gray-900 dark:text-white" onClick={()=>handleSort("status")}>Status</th>
+              <th className="px-4 py-3 cursor-pointer text-gray-900 dark:text-white" onClick={()=>handleSort("tanggal_daftar")}>Tanggal</th>
+              <th className="px-4 py-3 text-gray-900 dark:text-white">Aksi</th>
             </tr>
           </thead>
 
@@ -300,36 +300,37 @@ const getPageNumbers = () => {
               const statusFix = item.status === "menunggu" ? "pending" : item.status;
 
               return (
-                <tr key={item.id} className="border-t hover:bg-gray-50">
-                  <td className="px-4 py-3">
+                <tr key={item.id} className="border-t hover:bg-gray-50 dark:hover:bg-gray-700 dark:border-gray-700">
+                  <td className="px-4 py-3 text-gray-900 dark:text-white">
                     {(currentPage - 1) * itemsPerPage + i + 1}
                   </td>
-                  <td className="px-4 py-3">{perusahaan?.nama}</td>
-                  <td className="px-4 py-3">{siswa?.nama}</td>
+                  <td className="px-4 py-3 text-gray-900 dark:text-white">{perusahaan?.nama}</td>
+                  <td className="px-4 py-3 text-gray-900 dark:text-white">{siswa?.nama}</td>
                   <td className="px-4 py-3">
-                    <span className="px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs">
+                    <span className="px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 text-xs">
                       {siswa?.kelas}
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium
-                          ${
-                            statusFix === "diterima"
-                              ? "bg-green-100 text-green-700"
-                              : statusFix === "ditolak"
-                              ? "bg-red-100 text-red-700"
-                              : "bg-yellow-100 text-yellow-700"
-                          }
-                        `}
-                      >
-                        {statusFix}
-                      </span>
-                    </td>                  <td className="px-4 py-3">{item.tanggal_daftar?.toDate?.().toLocaleDateString()}</td>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium
+                        ${
+                          statusFix === "diterima"
+                            ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200"
+                            : statusFix === "ditolak"
+                            ? "bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200"
+                            : "bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-200"
+                        }
+                      `}
+                    >
+                      {statusFix}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-gray-900 dark:text-white">{item.tanggal_daftar?.toDate?.().toLocaleDateString()}</td>
                   <td className="px-4 py-3 flex gap-2">
-                    <button onClick={()=>handleStatusUpdate(item.id,"diterima")} className="bg-green-500 text-white px-2 py-1 rounded">✔</button>
-                    <button onClick={()=>handleStatusUpdate(item.id,"ditolak")} className="bg-gray-500 text-white px-2 py-1 rounded">✖</button>
-                    <button onClick={()=>handleDelete(item.id)} className="bg-red-500 text-white px-2 py-1 rounded">🗑</button>
+                    <button onClick={()=>handleStatusUpdate(item.id,"diterima")} className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded transition">✔</button>
+                    <button onClick={()=>handleStatusUpdate(item.id,"ditolak")} className="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-2 py-1 rounded transition">✖</button>
+                    <button onClick={()=>handleDelete(item.id)} className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded transition">🗑</button>
                   </td>
                 </tr>
               );
@@ -341,7 +342,7 @@ const getPageNumbers = () => {
       {/* PAGINATION */}
 <div className="flex justify-between items-center mt-6">
 
-  <p className="text-sm text-gray-500">
+  <p className="text-sm text-gray-500 dark:text-gray-400">
     Total {sortedData.length} data
   </p>
 
@@ -352,7 +353,7 @@ const getPageNumbers = () => {
       onClick={() =>
         setCurrentPage(currentPage - 1)
       }
-      className="px-3 py-2 border rounded disabled:opacity-50"
+      className="px-3 py-2 border rounded disabled:opacity-50 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700"
     >
       Prev
     </button>
@@ -363,10 +364,10 @@ const getPageNumbers = () => {
         onClick={() =>
           setCurrentPage(page)
         }
-        className={`px-3 py-2 rounded ${
+        className={`px-3 py-2 rounded transition ${
           currentPage === page
             ? "bg-blue-600 text-white"
-            : "border"
+            : "border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700"
         }`}
       >
         {page}
@@ -380,7 +381,7 @@ const getPageNumbers = () => {
       onClick={() =>
         setCurrentPage(currentPage + 1)
       }
-      className="px-3 py-2 border rounded disabled:opacity-50"
+      className="px-3 py-2 border rounded disabled:opacity-50 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700"
     >
       Next
     </button>

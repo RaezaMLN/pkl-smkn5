@@ -85,7 +85,7 @@ export default function LoginPembimbing() {
   }, [toast]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-600 to-blue-800">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-600 dark:from-gray-900 to-blue-800 dark:to-gray-800 transition-colors duration-300">
 
       {/* TOAST */}
       <AnimatePresence>

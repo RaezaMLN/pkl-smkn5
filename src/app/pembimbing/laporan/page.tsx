@@ -141,16 +141,16 @@ export default function LaporanPembimbingPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-4">
+    <div className="max-w-6xl mx-auto p-4 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
 
       {/* ALERT */}
       {alertMsg && (
-        <div className="bg-green-100 text-green-700 p-3 rounded mb-4 text-sm">
+        <div className="bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 p-3 rounded mb-4 text-sm">
           {alertMsg}
         </div>
       )}
 
-      <h1 className="text-2xl font-semibold mb-6">
+      <h1 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">
         Laporan Siswa Bimbingan
       </h1>
 
@@ -158,23 +158,23 @@ export default function LaporanPembimbingPage() {
       <div className="grid md:grid-cols-3 gap-3 mb-6">
         <input
           placeholder="Cari siswa..."
+          className="p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="border px-3 py-2 rounded"
         />
 
         <input
           placeholder="Filter Kelas (contoh: XII RPL 3)"
           value={kelasFilter}
           onChange={(e) => setKelasFilter(e.target.value)}
-          className="border px-3 py-2 rounded"
+          className="p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
         />
 
         <input
           placeholder="Filter Jurusan (contoh: RPL)"
           value={jurusanFilter}
           onChange={(e) => setJurusanFilter(e.target.value)}
-          className="border px-3 py-2 rounded"
+          className="p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
         />
       </div>
 
@@ -187,7 +187,7 @@ export default function LaporanPembimbingPage() {
           {filteredData.map((siswa) => (
             <div
               key={siswa.siswaId}
-              className="bg-white rounded-xl shadow border"
+              className="bg-white dark:bg-gray-800 rounded-xl shadow dark:shadow-lg border border-gray-200 dark:border-gray-700"
             >
 
               {/* HEADER */}
@@ -195,14 +195,14 @@ export default function LaporanPembimbingPage() {
                 onClick={() =>
                   setOpenId(openId === siswa.siswaId ? null : siswa.siswaId)
                 }
-                className="flex justify-between items-center p-4 cursor-pointer hover:bg-gray-50"
+                className="flex justify-between items-center p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition"
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <User className="text-blue-600" />
-                    <h2 className="font-semibold">{siswa.nama}</h2>
+                    <User className="text-blue-600 dark:text-blue-400" />
+                    <h2 className="font-semibold text-gray-900 dark:text-white">{siswa.nama}</h2>
                   </div>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     {siswa.kelas} • {siswa.jurusan}
                   </p>
                 </div>
@@ -230,16 +230,16 @@ export default function LaporanPembimbingPage() {
 
               {/* DROPDOWN */}
               {openId === siswa.siswaId && (
-                <div className="border-t p-4 space-y-3">
+                <div className="border-t border-gray-200 dark:border-gray-700 p-4 space-y-3">
 
                   {siswa.laporan.map((item: any) => (
                     <div
                       key={item.id}
-                      className="border rounded-lg p-3 flex justify-between"
+                      className="border border-gray-200 dark:border-gray-600 rounded-lg p-3 flex justify-between bg-gray-50 dark:bg-gray-700"
                     >
                       <div>
-                        <p className="font-medium">{item.tanggal}</p>
-                        <p>{item.kegiatan}</p>
+                        <p className="font-medium text-gray-900 dark:text-white">{item.tanggal}</p>
+                        <p className="text-gray-700 dark:text-gray-200">{item.kegiatan}</p>
 
                         {item.foto && (
                           <a

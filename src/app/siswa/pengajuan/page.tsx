@@ -84,12 +84,12 @@ export default function PengajuanPkl() {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-semibold mb-4">Pengajuan Tempat PKL Baru</h1>
+    <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
+      <h1 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-white">Pengajuan Tempat PKL Baru</h1>
 
-      {errorMessage && <div className="text-red-500 mb-4">{errorMessage}</div>}
+      {errorMessage && <div className="text-red-500 dark:text-red-400 mb-4">{errorMessage}</div>}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 bg-white dark:bg-gray-800 p-6 rounded-lg">
         <InputField label="Nama Perusahaan" name="nama_perusahaan" value={formData.nama_perusahaan} onChange={handleChange} />
         <InputField label="Alamat" name="alamat" value={formData.alamat} onChange={handleChange} />
         <InputField type="number" label="Kontak" name="kontak" value={formData.kontak} onChange={handleChange} />
@@ -98,7 +98,7 @@ export default function PengajuanPkl() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white p-2 rounded transition"
         >
           {isSubmitting ? 'Mengirim...' : 'Kirim Pengajuan'}
         </button>

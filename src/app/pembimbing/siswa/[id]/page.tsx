@@ -92,17 +92,17 @@ export default function DetailSiswaPage() {
   }
 
   return (
-    <div>
+    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
       {/* 🔙 Back */}
       <button
         onClick={() => router.back()}
-        className="flex items-center gap-2 mb-4 text-blue-600 hover:underline"
+        className="flex items-center gap-2 mb-4 text-blue-600 dark:text-blue-400 hover:underline p-4"
       >
         <ArrowLeft size={16} />
         Kembali
       </button>
 
-      <h1 className="text-2xl font-semibold mb-6">
+      <h1 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">
         Detail Siswa
       </h1>
 
@@ -112,13 +112,13 @@ export default function DetailSiswaPage() {
         className="grid md:grid-cols-2 gap-6"
       >
         {/* DATA SISWA */}
-        <div className="bg-white p-6 rounded-xl shadow">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow dark:shadow-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2 mb-4">
-            <User className="text-blue-600" />
-            <h2 className="text-lg font-semibold">Data Siswa</h2>
+            <User className="text-blue-600 dark:text-blue-400" />
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Data Siswa</h2>
           </div>
 
-          <div className="space-y-2 text-sm">
+          <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
             <p><strong>Nama:</strong> {siswa.nama}</p>
             <p><strong>Kelas:</strong> {siswa.kelas}</p>
             <p><strong>Email:</strong> {siswa.email}</p>
@@ -126,15 +126,15 @@ export default function DetailSiswaPage() {
         </div>
 
         {/* DATA PKL */}
-        <div className="bg-white p-6 rounded-xl shadow">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow dark:shadow-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2 mb-4">
-            <Building2 className="text-green-600" />
-            <h2 className="text-lg font-semibold">Data PKL</h2>
+            <Building2 className="text-green-600 dark:text-green-400" />
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Data PKL</h2>
           </div>
 
-          <p><strong>Perusahaan:</strong> {perusahaan}</p>
+          <p className="text-gray-700 dark:text-gray-300"><strong>Perusahaan:</strong> {perusahaan}</p>
 
-          <p className="mt-2">
+          <p className="mt-2 text-gray-700 dark:text-gray-300">
             <strong>Status:</strong>{' '}
             {perusahaan !== 'Belum PKL' ? (
               <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">
@@ -150,25 +150,25 @@ export default function DetailSiswaPage() {
       </motion.div>
 
       {/* 🔥 LAPORAN */}
-      <div className="mt-8 bg-white p-6 rounded-xl shadow">
-        <h2 className="text-lg font-semibold mb-4">
+      <div className="mt-8 bg-white dark:bg-gray-800 p-6 rounded-xl shadow dark:shadow-lg border border-gray-200 dark:border-gray-700">
+        <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
           Laporan Harian
         </h2>
 
         {laporan.length > 0 ? (
           <div className="space-y-4">
             {laporan.map((l) => (
-              <div key={l.id} className="border rounded-lg p-3">
+              <div key={l.id} className="border border-gray-200 dark:border-gray-600 rounded-lg p-3 bg-gray-50 dark:bg-gray-700">
 
                 <div className="flex justify-between">
-                  <p className="font-semibold">{l.tanggal}</p>
-                  <span className="text-xs bg-yellow-100 px-2 py-1 rounded">
+                  <p className="font-semibold text-gray-900 dark:text-white">{l.tanggal}</p>
+                  <span className="text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded">
                     {l.status}
                   </span>
                 </div>
 
-                <p className="mt-1">{l.kegiatan}</p>
-                <p className="text-sm text-gray-500">{l.keterangan}</p>
+                <p className="mt-1 text-gray-700 dark:text-gray-300">{l.kegiatan}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{l.keterangan}</p>
 
                 {/* 🔥 LINK FOTO (FINAL) */}
                 {l.foto && (

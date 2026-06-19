@@ -211,14 +211,14 @@ useEffect(() => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
+    <div className="max-w-4xl mx-auto p-4 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
 
       {/* ALERT */}
       {alertMsg && (
         <div className={`p-3 mb-4 rounded-lg text-sm
-          ${alertType === 'success' && 'bg-green-100 text-green-700'}
-          ${alertType === 'error' && 'bg-red-100 text-red-700'}
-          ${alertType === 'warning' && 'bg-yellow-100 text-yellow-700'}
+          ${alertType === 'success' && 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200'}
+          ${alertType === 'error' && 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200'}
+          ${alertType === 'warning' && 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-200'}
         `}>
           {alertMsg}
         </div>
@@ -226,11 +226,11 @@ useEffect(() => {
 
       {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold">Laporan Harian PKL</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Laporan Harian PKL</h1>
 
         <button
           onClick={() => setShowExport(true)}
-          className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg"
+          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition"
         >
           <Download size={16} />
           Download Jurnal
@@ -248,14 +248,14 @@ useEffect(() => {
     placeholder="Cari kegiatan..."
     value={search}
     onChange={(e) => setSearch(e.target.value)}
-    className="border px-3 py-2 rounded-lg w-full"
+    className="border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
   />
 
   {/* FILTER BULAN */}
   <select
     value={filterBulan}
     onChange={(e) => setFilterBulan(e.target.value)}
-    className="border px-3 py-2 rounded-lg"
+    className="border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
   >
     <option value="">Semua Bulan</option>
     {[...Array(12)].map((_, i) => (
@@ -269,7 +269,7 @@ useEffect(() => {
   <select
     value={itemsPerPage}
     onChange={(e) => setItemsPerPage(Number(e.target.value))}
-    className="border px-3 py-2 rounded-lg"
+    className="border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
   >
     <option value={5}>5 / halaman</option>
     <option value={10}>10 / halaman</option>
@@ -280,9 +280,9 @@ useEffect(() => {
 </div>
 
 {/* FORM INPUT */}
-<div className="bg-white p-6 rounded-xl shadow mb-6 space-y-4">
+<div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow dark:shadow-lg border border-gray-200 dark:border-gray-700 mb-6 space-y-4">
 
-  <h2 className="text-lg font-semibold">
+  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
     {editId ? 'Edit Laporan' : 'Tambah Laporan'}
   </h2>
 
@@ -290,7 +290,7 @@ useEffect(() => {
     type="date"
     value={tanggal}
     onChange={(e) => setTanggal(e.target.value)}
-    className="w-full border px-3 py-2 rounded-lg"
+    className="w-full border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
   />
 
   <input
@@ -298,14 +298,14 @@ useEffect(() => {
     placeholder="Kegiatan"
     value={kegiatan}
     onChange={(e) => setKegiatan(e.target.value)}
-    className="w-full border px-3 py-2 rounded-lg"
+    className="w-full border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
   />
 
   <textarea
     placeholder="Keterangan"
     value={keterangan}
     onChange={(e) => setKeterangan(e.target.value)}
-    className="w-full border px-3 py-2 rounded-lg"
+    className="w-full border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
   />
 
   <input
@@ -313,13 +313,13 @@ useEffect(() => {
     placeholder="Link Foto (Google Drive)"
     value={fotoUrl}
     onChange={(e) => setFotoUrl(e.target.value)}
-    className="w-full border px-3 py-2 rounded-lg"
+    className="w-full border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
   />
 
   <div className="flex gap-2">
     <button
       onClick={handleSubmit}
-      className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
     >
       {loading
         ? 'Menyimpan...'
@@ -331,7 +331,7 @@ useEffect(() => {
     {editId && (
       <button
         onClick={resetForm}
-        className="bg-gray-400 text-white px-4 py-2 rounded-lg"
+        className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg transition"
       >
         Batal
       </button>
@@ -343,14 +343,14 @@ useEffect(() => {
 
 
       {/* LIST */}
-      <div className="bg-white p-6 rounded-xl shadow">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow dark:shadow-lg border border-gray-200 dark:border-gray-700">
         {paginatedData.map((item) => (
-          <div key={item.id} className="border p-3 rounded mb-3 flex justify-between">
+          <div key={item.id} className="border border-gray-200 dark:border-gray-600 p-3 rounded mb-3 flex justify-between bg-gray-50 dark:bg-gray-700">
 
             <div>
-              <p className="font-semibold">{item.tanggal}</p>
-              <p>{item.kegiatan}</p>
-              <p className="text-sm text-gray-500">{item.keterangan}</p>
+              <p className="font-semibold text-gray-900 dark:text-white">{item.tanggal}</p>
+              <p className="text-gray-700 dark:text-gray-200">{item.kegiatan}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{item.keterangan}</p>
 
               {item.foto && (
                 <a href={item.foto} target="_blank" className="text-blue-600 text-sm">

@@ -114,7 +114,7 @@ export default function ListDudi() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-100 via-blue-100 to-blue-200">  
+    <div className="min-h-screen bg-gradient-to-br from-cyan-100 dark:from-gray-900 via-blue-100 dark:via-gray-800 to-blue-200 dark:to-gray-900 transition-colors duration-300">
     <Navbar />
     <div className="p-12">
          
@@ -125,12 +125,12 @@ export default function ListDudi() {
           value={searchQuery}
           onChange={handleSearchChange}
           placeholder="Cari perusahaan..."
-          className="p-2 border rounded-md w-full md:w-1/2"
+          className="p-2 border border-gray-300 dark:border-gray-600 rounded-md w-full md:w-1/2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
         />
         <select
           value={selectedBidang}
           onChange={(e) => setSelectedBidang(e.target.value)}
-          className="p-2 border rounded-md w-full md:w-1/4"
+          className="p-2 border border-gray-300 dark:border-gray-600 rounded-md w-full md:w-1/4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
         >
           <option value="all">Semua Bidang</option>
           {uniqueBidang.map((b) => (

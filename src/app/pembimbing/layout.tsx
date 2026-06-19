@@ -94,12 +94,12 @@ export default function PembimbingLayout({
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       <Sidebar />
 
       <div className="flex flex-col flex-1">
         <Navbar pembimbing={pembimbing} />
-        <main className="flex-1 p-4">
+        <main className="flex-1 p-4 bg-gray-50 dark:bg-gray-900">
           {children}
         </main>
         <Footer />

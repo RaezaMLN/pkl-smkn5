@@ -135,7 +135,7 @@ const RegisterPage = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-6 sm:p-10">
       <motion.form
-        className="w-full sm:w-96 bg-white p-6 rounded-xl shadow-md"
+        className="w-full sm:w-96 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md"
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
@@ -146,23 +146,23 @@ const RegisterPage = () => {
         </h2>
 
         <div className="flex flex-col gap-4">
-          <input type="text" name="nama" value={formData.nama} onChange={handleChange} placeholder="Nama Lengkap" className="px-4 py-2 border border-gray-300 rounded-md" required />
-          <input type="number" name="nisn" value={formData.nisn} onChange={handleChange} placeholder="NISN" className="px-4 py-2 border border-gray-300 rounded-md" required />
-          <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" className="px-4 py-2 border border-gray-300 rounded-md" required />
-          <input type="number" name="hp" value={formData.hp} onChange={handleChange} placeholder="No. HP" className="px-4 py-2 border border-gray-300 rounded-md" required />
-          <select name="gender" value={formData.gender} onChange={handleChange} className="px-4 py-2 border border-gray-300 rounded-md" required>
+          <input type="text" name="nama" value={formData.nama} onChange={handleChange} placeholder="Nama Lengkap" className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required />
+          <input type="number" name="nisn" value={formData.nisn} onChange={handleChange} placeholder="NISN" className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required />
+          <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required />
+          <input type="number" name="hp" value={formData.hp} onChange={handleChange} placeholder="No. HP" className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required />
+          <select name="gender" value={formData.gender} onChange={handleChange} className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required>
             <option value="">Pilih Jenis Kelamin</option>
             <option value="Laki-laki">Laki-Laki</option>
             <option value="Perempuan">Perempuan</option>
           </select>
 
           {/* Tempat & Tanggal Lahir */}
-          <input type="text" value={formData.tempatLahir} onChange={handleTempatLahirChange} placeholder="Tempat Lahir" className="px-4 py-2 border border-gray-300 rounded-md" required />
-          <input type="date" value={formData.tanggalLahir} onChange={handleTanggalLahirChange} className="px-4 py-2 border border-gray-300 rounded-md" required />
+          <input type="text" value={formData.tempatLahir} onChange={handleTempatLahirChange} placeholder="Tempat Lahir" className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required />
+          <input type="date" value={formData.tanggalLahir} onChange={handleTanggalLahirChange} className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required />
 
-          <textarea name="alamat" value={formData.alamat} onChange={handleChange} placeholder="Alamat" className="px-4 py-2 border border-gray-300 rounded-md" required />
+          <textarea name="alamat" value={formData.alamat} onChange={handleChange} placeholder="Alamat" className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required />
           
-          <select name="kelas" value={formData.kelas} onChange={handleChange} className="px-4 py-2 border border-gray-300 rounded-md" required>
+          <select name="kelas" value={formData.kelas} onChange={handleChange} className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required>
             <option value="">Pilih kelas</option>
             <option value="XII RPL 1">XII RPL 1</option>
             <option value="XII RPL 2">XII RPL 2</option>
@@ -175,7 +175,7 @@ const RegisterPage = () => {
             <option value="XII PF 2">XII PF 2</option>
           </select>
 
-          <select name="jurusan" value={formData.jurusan} onChange={handleChange} className="px-4 py-2 border border-gray-300 rounded-md" required>
+          <select name="jurusan" value={formData.jurusan} onChange={handleChange} className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required>
             <option value="">Pilih Konsentrasi Keahlian</option>
             <option value="Rekayasa Perangkat Lunak">RPL</option>
             <option value="Teknik Jaringan Akses Telekomunikasi">TJAT</option>
@@ -183,10 +183,10 @@ const RegisterPage = () => {
             <option value="Produksi Film">PF</option>
           </select>
 
-          <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Password" className="px-4 py-2 border border-gray-300 rounded-md" required />
-          <input type="password" name="konfirmasi" value={formData.konfirmasi} onChange={handleChange} placeholder="Konfirmasi Password" className="px-4 py-2 border border-gray-300 rounded-md" required />
+          <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Password" className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required />
+          <input type="password" name="konfirmasi" value={formData.konfirmasi} onChange={handleChange} placeholder="Konfirmasi Password" className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required />
 
-          <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-md mt-4 hover:bg-blue-700">
+          <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md mt-4 transition">
             Daftar
           </button>
         </div>

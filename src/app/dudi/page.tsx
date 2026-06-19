@@ -114,7 +114,7 @@ export default function ListDudi() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-100 via-blue-100 to-blue-200">  
+    <div className="min-h-screen bg-gradient-to-br from-cyan-100 via-blue-100 to-blue-200 dark:from-gray-800 dark:via-gray-900 dark:to-gray-900 transition-colors duration-300">  
     <Navbar />
     <div className="p-12">
          
@@ -130,7 +130,7 @@ export default function ListDudi() {
         <select
           value={selectedBidang}
           onChange={(e) => setSelectedBidang(e.target.value)}
-          className="p-2 border rounded-md w-full md:w-1/4"
+          className="p-2 border border-gray-300 dark:border-gray-600 rounded-md w-full md:w-1/4 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
         >
           <option value="all">Semua Bidang</option>
           {uniqueBidang.map((b) => (
@@ -142,7 +142,7 @@ export default function ListDudi() {
         <select
           value={itemsPerPage}
           onChange={(e) => setItemsPerPage(Number(e.target.value))}
-          className="p-2 border rounded-md w-full md:w-1/4"
+          className="p-2 border border-gray-300 dark:border-gray-600 rounded-md w-full md:w-1/4 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
         >
           {[3, 6, 9, 12].map((num) => (
             <option key={num} value={num}>
@@ -157,12 +157,12 @@ export default function ListDudi() {
         {paginatedCompanies.map((company) => (
           <Card
             key={company.id}
-            className="bg-white shadow-md rounded-2xl p-5 border hover:shadow-xl transition-shadow duration-300"
+            className="bg-white dark:bg-gray-800 shadow-md dark:shadow-lg rounded-2xl p-5 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300"
           >
-            <h3 className="text-xl font-bold text-blue-700 mb-2">
+            <h3 className="text-xl font-bold text-blue-700 dark:text-blue-400 mb-2">
               {company.nama}
             </h3>
-            <div className="text-gray-600 space-y-1 text-sm">
+            <div className="text-gray-600 dark:text-gray-300 space-y-1 text-sm">
               <p>📍 <span className="font-medium">{company.alamat}</span></p>
               <p>💼 <span className="font-medium">{company.bidang}</span></p>
               <p>📞 <span className="font-medium">{company.kontak}</span></p>

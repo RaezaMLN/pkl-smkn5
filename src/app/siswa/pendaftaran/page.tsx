@@ -168,7 +168,7 @@ useEffect(() => {
   );
 
   return (
-    <div className="p-6">
+    <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
       {/* Search & Filter */}
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <input
@@ -176,12 +176,12 @@ useEffect(() => {
           value={searchQuery}
           onChange={handleSearchChange}
           placeholder="Cari perusahaan..."
-          className="p-2 border rounded-md w-full md:w-1/2"
+          className="p-2 border border-gray-300 dark:border-gray-600 rounded-md w-full md:w-1/2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
         />
         <select
           value={selectedBidang}
           onChange={(e) => setSelectedBidang(e.target.value)}
-          className="p-2 border rounded-md w-full md:w-1/4"
+          className="p-2 border border-gray-300 dark:border-gray-600 rounded-md w-full md:w-1/4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
         >
           <option value="all">Semua Bidang</option>
           {uniqueBidang.map((b) => (
@@ -194,7 +194,7 @@ useEffect(() => {
         <select
           value={filterKuota}
           onChange={(e) => setFilterKuota(e.target.value)}
-          className="p-2 border rounded-md w-full md:w-1/4"
+          className="p-2 border border-gray-300 dark:border-gray-600 rounded-md w-full md:w-1/4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
         >
           <option value="all">Semua Kuota</option>
           <option value="tersedia">Kuota Tersedia</option>

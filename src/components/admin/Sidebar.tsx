@@ -1,6 +1,6 @@
 // Sidebar component (tidak berubah)
 import React from 'react';
-import { FaHome, FaUsers, FaBuilding, FaClipboardList, FaBars, FaPaperPlane } from 'react-icons/fa';
+import { FaHome, FaUsers, FaBuilding, FaClipboardList, FaBars, FaPaperPlane, FaChalkboardTeacher } from 'react-icons/fa';
 import Link from 'next/link';
 
 interface SidebarProps {
@@ -27,6 +27,7 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
           <SidebarItem href="/admin/pengajuan" icon={<FaPaperPlane />} label="Pengajuan" isOpen={isOpen} />
           <SidebarItem href="/admin/siswa" icon={<FaUsers />} label="Siswa" isOpen={isOpen} />
           <SidebarItem href="/admin/pendaftaran" icon={<FaClipboardList />} label="Pendaftaran" isOpen={isOpen} />
+          <SidebarItem href="/admin/pembimbing" icon={<FaChalkboardTeacher />} label="Pembimbing" isOpen={isOpen} />
         </ul>
       </nav>
     </div>

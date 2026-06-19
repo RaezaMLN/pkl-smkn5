@@ -164,25 +164,25 @@ const PengajuanTempatPklPage = () => {
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold mb-6">Manajemen Pengajuan Tempat PKL</h1>
+    <div className="w-full max-w-7xl mx-auto px-4 py-6 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
+      <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Manajemen Pengajuan Tempat PKL</h1>
 
       {/* Search */}
       <div className="mb-6">
-        <label className="block mb-2 text-sm font-medium text-gray-700">Cari Pengajuan</label>
+        <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Cari Pengajuan</label>
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="border border-gray-300 p-2 rounded-md w-full"
+          className="border border-gray-300 dark:border-gray-600 p-2 rounded-md w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
           placeholder="Cari berdasarkan nama siswa atau perusahaan"
         />
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full border rounded-md overflow-hidden">
-  <thead className="bg-gray-100 text-left">
+      <div className="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg">
+        <table className="w-full border dark:border-gray-700 rounded-md overflow-hidden">
+  <thead className="bg-gray-100 dark:bg-gray-700 text-left text-gray-900 dark:text-white">
     <tr>
       <th className="px-4 py-3">No.</th>
       <th className="px-4 py-3">Nama Siswa</th>
