@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { db } from '@/lib/firebase';
+import * as XLSX from "xlsx";
 import {
   collection,
   getDocs,
@@ -11,7 +12,8 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import { motion } from 'framer-motion';
-import { Plus, Trash, Pencil } from 'lucide-react';
+import { Plus, Trash, Pencil, FileUp } from "lucide-react";
+
 
 interface Pembimbing {
   id: string;
@@ -99,6 +101,37 @@ export default function AdminPembimbingPage() {
     fetchData();
   };
 
+  const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async (evt) => {
+    const data = new Uint8Array(evt.target?.result as ArrayBuffer);
+    const workbook = XLSX.read(data, { type: "array" });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+
+    // ✅ Tambahkan generic <Pembimbing>
+    const rows: Pembimbing[] = XLSX.utils.sheet_to_json<Pembimbing>(sheet);
+
+    for (const row of rows) {
+      await addDoc(collection(db, "pembimbing"), {
+        nama: row.nama,
+        no_hp: row.no_hp,
+        nip: row.nip || "",
+        nik: row.nik,
+        password: row.password,
+      });
+    }
+
+    fetchData();
+    alert("Import Excel selesai!");
+  };
+  reader.readAsArrayBuffer(file);
+};
+  
+
   return (
     <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
 
@@ -151,13 +184,30 @@ export default function AdminPembimbingPage() {
           />
         </div>
 
-        <button
-          onClick={handleSubmit}
-          className="mt-4 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition"
-        >
-          <Plus size={16} />
-          {editId ? 'Update' : 'Tambah'}
-        </button>
+       <div className="mt-4 flex gap-2">
+          {/* Tombol Tambah/Update */}
+          <button
+            onClick={handleSubmit}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition"
+          >
+            <Plus size={16} />
+            {editId ? "Update" : "Tambah"}
+          </button>
+
+          {/* Tombol Import Excel */}
+          <label className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded cursor-pointer transition">
+            <FileUp size={16} />
+            <span>Import</span>
+            <input
+              type="file"
+              accept=".xlsx"
+              onChange={handleImportExcel}
+              className="hidden"
+            />
+          </label>
+        </div>
+
+
       </motion.div>
 
       {/* TABLE */}

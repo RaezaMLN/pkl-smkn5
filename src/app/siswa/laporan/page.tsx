@@ -48,6 +48,7 @@ export default function LaporanSiswaPage() {
   // 🔥 FILTER & PAGINATION
   const [search, setSearch] = useState('');
   const [filterBulan, setFilterBulan] = useState('');
+  const [sortBy, setSortBy] = useState('terbaru');
   const [currentPage, setCurrentPage] = useState(1);
 
  const [itemsPerPage, setItemsPerPage] = useState(5);
@@ -111,17 +112,43 @@ export default function LaporanSiswaPage() {
   }, []);
 
   // 🔥 FILTER LOGIC
-  const filteredData = laporan.filter((item) => {
-    const matchSearch = item.kegiatan
-      ?.toLowerCase()
-      .includes(search.toLowerCase());
+  const filteredData = laporan
 
-    const matchBulan = filterBulan
-      ? new Date(item.tanggal).getMonth().toString() === filterBulan
-      : true;
+.filter((item) => {
+  const matchSearch = item.kegiatan
+    ?.toLowerCase()
+    .includes(search.toLowerCase());
+  const matchBulan = filterBulan
+    ? item.tanggal?.split('-')[1] ===
+      String(Number(filterBulan) + 1).padStart(2,'0')
+    : true;
+  return matchSearch && matchBulan;
+})
+.sort((a,b)=>{
+  if(sortBy === 'az'){
+    return a.kegiatan.localeCompare(
+      b.kegiatan,
+      'id',
+      { sensitivity:'base' }
+    );
+  }
+  if(sortBy === 'za'){
+    return b.kegiatan.localeCompare(
+      a.kegiatan,
+      'id',
+      { sensitivity:'base' }
+    );
+  }
+  if(sortBy === 'terlama'){
 
-    return matchSearch && matchBulan;
-  });
+    return a.tanggal.localeCompare(
+      b.tanggal
+    );
+  }
+  return b.tanggal.localeCompare(
+    a.tanggal
+  );
+});
 
   // 🔥 PAGINATION
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -133,7 +160,12 @@ export default function LaporanSiswaPage() {
 
 useEffect(() => {
   setCurrentPage(1);
-}, [search, filterBulan, itemsPerPage]);
+}, [
+  search,
+  filterBulan,
+  sortBy,
+  itemsPerPage
+]);
 
   // 🔥 RESET
   const resetForm = () => {
@@ -264,6 +296,18 @@ useEffect(() => {
       </option>
     ))}
   </select>
+
+  {/* SORT */}
+<select
+  value={sortBy}
+  onChange={(e) => setSortBy(e.target.value)}
+  className="border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+>
+  <option value="terbaru">Tanggal Terbaru</option>
+  <option value="terlama">Tanggal Terlama</option>
+  <option value="az">Kegiatan A - Z</option>
+  <option value="za">Kegiatan Z - A</option>
+</select>
 
   {/* 🔥 LIMIT PER PAGE */}
   <select
