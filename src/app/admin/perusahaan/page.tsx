@@ -161,7 +161,7 @@ const fetchPembimbing = async () => {
     }
   };
 
-  const handleEdit = (id: string, nama: string, alamat: string, bidang: string, kontak: string, keterangan:string, kuota: number, stats: string) => {
+  const handleEdit = (id: string, nama: string, alamat: string, bidang: string, kontak: string, keterangan:string, kuota: number, stats: string,  pembimbingId:string='') => {
     setEditMode(true);
     setEditId(id);
     setNama(nama);
@@ -171,6 +171,7 @@ const fetchPembimbing = async () => {
     setStats(stats);
     setKuota(kuota);
     setKeterangan(keterangan);
+     setPembimbingId(pembimbingId);
   };
 
   const handleUpdate = async () => {
@@ -474,7 +475,7 @@ const totalPages = useMemo(() => {
                 </button>
 
                   <button
-                    onClick={() => handleEdit(per.id, per.nama, per.alamat, per.bidang, per.kontak, per.keterangan, per.kuota, per.stats)}
+                    onClick={() => handleEdit(per.id, per.nama, per.alamat, per.bidang, per.kontak, per.keterangan, per.kuota, per.stats, per.pembimbingId)}
                     className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
                   >
                     Edit

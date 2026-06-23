@@ -45,11 +45,11 @@ export default function SiswaLayout({ children }: { children: React.ReactNode })
 
   // Layout siswa (sudah login)
   return (
-    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <div className="flex min-h-screen">
       <Sidebar />
       <div className="flex flex-col flex-1">
         <Navbar />
-        <main className="flex-1 p-4 bg-gray-50 dark:bg-gray-900">{children}</main>
+        <main className="flex-1 p-4">{children}</main>
         <Footer />
       </div>
     </div>
