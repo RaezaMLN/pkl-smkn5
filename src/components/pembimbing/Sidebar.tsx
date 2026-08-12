@@ -2,13 +2,30 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Menu, X, Home, Users, FileText } from 'lucide-react';
+import { Menu, X, Home, Users, FileText, ClipboardCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const navItems = [
-  { label: 'Dashboard', href: '/pembimbing/dashboard', icon: <Home size={20} /> },
-  { label: 'Siswa Bimbingan', href: '/pembimbing/siswa', icon: <Users size={20} /> },
-  { label: 'Laporan', href: '/pembimbing/laporan', icon: <FileText size={20} /> },
+  {
+    label: 'Dashboard',
+    href: '/pembimbing/dashboard',
+    icon: <Home size={20} />,
+  },
+  {
+    label: 'Siswa Bimbingan',
+    href: '/pembimbing/siswa',
+    icon: <Users size={20} />,
+  },
+  {
+    label: 'Monitoring',
+    href: '/pembimbing/monitoring',
+    icon: <ClipboardCheck size={20} />,
+  },
+  {
+    label: 'Laporan',
+    href: '/pembimbing/laporan',
+    icon: <FileText size={20} />,
+  },
 ];
 
 export default function Sidebar() {
