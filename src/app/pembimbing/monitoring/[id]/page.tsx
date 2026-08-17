@@ -18,6 +18,7 @@ import {
   CalendarDays,
   ClipboardCheck,
   Clock,
+  FolderKanban,
   Pencil,
   Trash2,
   User,
@@ -28,8 +29,15 @@ import {
   motion,
 } from 'framer-motion';
 
+/*
+|--------------------------------------------------------------------------
+| INTERFACE
+|--------------------------------------------------------------------------
+*/
+
 interface MonitoringData {
   id: string;
+
   pembimbingId: string;
   siswaId: string;
   perusahaanId: string;
@@ -38,6 +46,14 @@ interface MonitoringData {
   waktu?: string;
 
   jenisMonitoring?: string;
+
+  /*
+  |--------------------------------------------------------------------------
+  | PROGRESS PROJECT
+  |--------------------------------------------------------------------------
+  */
+
+  progressProject?: number;
 
   kriteria?: {
     kedisiplinan?: number;
@@ -60,6 +76,7 @@ interface MonitoringData {
 
 interface SiswaData {
   id: string;
+
   nama?: string;
   kelas?: string;
   jurusan?: string;
@@ -71,12 +88,19 @@ interface SiswaData {
 
 interface PerusahaanData {
   id: string;
+
   nama?: string;
   alamat?: string;
   bidang?: string;
 
   [key: string]: any;
 }
+
+/*
+|--------------------------------------------------------------------------
+| KRITERIA
+|--------------------------------------------------------------------------
+*/
 
 const criteriaLabels: Record<string, string> = {
   kedisiplinan: 'Kedisiplinan',
@@ -95,6 +119,12 @@ export default function DetailMonitoringPage() {
   const id = Array.isArray(params.id)
     ? params.id[0]
     : (params.id as string);
+
+  /*
+  |--------------------------------------------------------------------------
+  | STATE
+  |--------------------------------------------------------------------------
+  */
 
   const [monitoring, setMonitoring] =
     useState<MonitoringData | null>(null);
@@ -152,10 +182,18 @@ export default function DetailMonitoringPage() {
   */
 
   useEffect(() => {
+    let cancelled = false;
+
     const fetchDetail = async () => {
       try {
         setLoading(true);
         setError('');
+
+        /*
+        |--------------------------------------------------------------------------
+        | PEMBIMBING LOGIN
+        |--------------------------------------------------------------------------
+        */
 
         const pembimbingLocal =
           localStorage.getItem(
@@ -175,6 +213,14 @@ export default function DetailMonitoringPage() {
             pembimbingLocal
           );
 
+        if (!pembimbing?.id) {
+          router.replace(
+            '/pembimbing/login'
+          );
+
+          return;
+        }
+
         /*
         |--------------------------------------------------------------------------
         | MONITORING
@@ -191,9 +237,11 @@ export default function DetailMonitoringPage() {
           );
 
         if (!monitoringDoc.exists()) {
-          setError(
-            'Data monitoring tidak ditemukan.'
-          );
+          if (!cancelled) {
+            setError(
+              'Data monitoring tidak ditemukan.'
+            );
+          }
 
           return;
         }
@@ -205,7 +253,7 @@ export default function DetailMonitoringPage() {
 
         /*
         |--------------------------------------------------------------------------
-        | CEK KEPEMILIKAN
+        | OWNERSHIP
         |--------------------------------------------------------------------------
         */
 
@@ -213,71 +261,92 @@ export default function DetailMonitoringPage() {
           monitoringData.pembimbingId !==
           pembimbing.id
         ) {
-          setError(
-            'Anda tidak memiliki akses ke data monitoring ini.'
-          );
+          if (!cancelled) {
+            setError(
+              'Anda tidak memiliki akses ke data monitoring ini.'
+            );
+          }
 
           return;
         }
 
-        setMonitoring(
-          monitoringData
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | SISWA
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-          monitoringData.siswaId
-        ) {
-          const siswaDoc =
-            await getDoc(
-              doc(
-                db,
-                'siswa',
-                monitoringData.siswaId
-              )
-            );
-
-          if (
-            siswaDoc.exists()
-          ) {
-            setSiswa({
-              id: siswaDoc.id,
-              ...siswaDoc.data(),
-            });
-          }
+        if (!cancelled) {
+          setMonitoring(
+            monitoringData
+          );
         }
 
         /*
         |--------------------------------------------------------------------------
-        | PERUSAHAAN
+        | SISWA + PERUSAHAAN
+        |--------------------------------------------------------------------------
+        |
+        | Diambil paralel agar lebih cepat.
+        |
+        */
+
+        const siswaPromise =
+          monitoringData.siswaId
+            ? getDoc(
+                doc(
+                  db,
+                  'siswa',
+                  monitoringData.siswaId
+                )
+              )
+            : Promise.resolve(null);
+
+        const perusahaanPromise =
+          monitoringData.perusahaanId
+            ? getDoc(
+                doc(
+                  db,
+                  'perusahaan',
+                  monitoringData.perusahaanId
+                )
+              )
+            : Promise.resolve(null);
+
+        const [
+          siswaDoc,
+          perusahaanDoc,
+        ] = await Promise.all([
+          siswaPromise,
+          perusahaanPromise,
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | SET SISWA
         |--------------------------------------------------------------------------
         */
 
         if (
-          monitoringData.perusahaanId
+          !cancelled &&
+          siswaDoc &&
+          siswaDoc.exists()
         ) {
-          const perusahaanDoc =
-            await getDoc(
-              doc(
-                db,
-                'perusahaan',
-                monitoringData.perusahaanId
-              )
-            );
+          setSiswa({
+            id: siswaDoc.id,
+            ...siswaDoc.data(),
+          });
+        }
 
-          if (
-            perusahaanDoc.exists()
-          ) {
-            setPerusahaan({
-              id: perusahaanDoc.id,
-              ...perusahaanDoc.data(),
-            });
-          }
+        /*
+        |--------------------------------------------------------------------------
+        | SET PERUSAHAAN
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+          !cancelled &&
+          perusahaanDoc &&
+          perusahaanDoc.exists()
+        ) {
+          setPerusahaan({
+            id: perusahaanDoc.id,
+            ...perusahaanDoc.data(),
+          });
         }
       } catch (err) {
         console.error(
@@ -285,22 +354,30 @@ export default function DetailMonitoringPage() {
           err
         );
 
-        setError(
-          'Terjadi kesalahan saat mengambil data monitoring.'
-        );
+        if (!cancelled) {
+          setError(
+            'Terjadi kesalahan saat mengambil data monitoring.'
+          );
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     if (id) {
       fetchDetail();
     }
+
+    return () => {
+      cancelled = true;
+    };
   }, [id, router]);
 
   /*
   |--------------------------------------------------------------------------
-  | DELETE MONITORING
+  | DELETE
   |--------------------------------------------------------------------------
   */
 
@@ -327,10 +404,6 @@ export default function DetailMonitoringPage() {
           pembimbingLocal
         );
 
-      /*
-      | Ambil ulang sebelum delete
-      */
-
       const monitoringRef =
         doc(
           db,
@@ -353,10 +426,6 @@ export default function DetailMonitoringPage() {
 
       const data =
         monitoringSnap.data();
-
-      /*
-      | Cek ownership lagi
-      */
 
       if (
         data.pembimbingId !==
@@ -392,7 +461,7 @@ export default function DetailMonitoringPage() {
 
   /*
   |--------------------------------------------------------------------------
-  | HELPER NILAI
+  | NILAI
   |--------------------------------------------------------------------------
   */
 
@@ -573,7 +642,7 @@ export default function DetailMonitoringPage() {
 
   /*
   |--------------------------------------------------------------------------
-  | FORMAT TANGGAL
+  | TANGGAL
   |--------------------------------------------------------------------------
   */
 
@@ -598,10 +667,9 @@ export default function DetailMonitoringPage() {
         Number(match[3])
       );
     } else {
-      date =
-        new Date(
-          tanggal
-        );
+      date = new Date(
+        tanggal
+      );
     }
 
     if (
@@ -620,6 +688,154 @@ export default function DetailMonitoringPage() {
         year: 'numeric',
       }
     ).format(date);
+  };
+
+  /*
+  |--------------------------------------------------------------------------
+  | PROGRESS PROJECT
+  |--------------------------------------------------------------------------
+  */
+
+  const hasProgress =
+    typeof monitoring?.progressProject ===
+    'number';
+
+  const progressProject =
+    hasProgress
+      ? Math.min(
+          Math.max(
+            monitoring!.progressProject!,
+            0
+          ),
+          100
+        )
+      : 0;
+
+  const progressLabel = (
+    progress?: number
+  ) => {
+    if (
+      progress === undefined ||
+      progress === null
+    ) {
+      return 'Belum Diisi';
+    }
+
+    if (progress === 0) {
+      return 'Belum Mulai';
+    }
+
+    if (progress <= 25) {
+      return 'Tahap Awal';
+    }
+
+    if (progress <= 50) {
+      return 'Dalam Proses';
+    }
+
+    if (progress <= 75) {
+      return 'Berkembang';
+    }
+
+    if (progress < 100) {
+      return 'Hampir Selesai';
+    }
+
+    return 'Selesai';
+  };
+
+  const progressBadgeClass = (
+    progress?: number
+  ) => {
+    if (
+      progress === undefined ||
+      progress === null
+    ) {
+      return `
+        bg-gray-100
+        text-gray-600
+        dark:bg-gray-700
+        dark:text-gray-300
+      `;
+    }
+
+    if (progress === 100) {
+      return `
+        bg-green-100
+        text-green-700
+        dark:bg-green-900
+        dark:text-green-200
+      `;
+    }
+
+    if (progress >= 76) {
+      return `
+        bg-blue-100
+        text-blue-700
+        dark:bg-blue-900
+        dark:text-blue-200
+      `;
+    }
+
+    if (progress >= 51) {
+      return `
+        bg-cyan-100
+        text-cyan-700
+        dark:bg-cyan-900
+        dark:text-cyan-200
+      `;
+    }
+
+    if (progress >= 26) {
+      return `
+        bg-yellow-100
+        text-yellow-700
+        dark:bg-yellow-900
+        dark:text-yellow-200
+      `;
+    }
+
+    if (progress > 0) {
+      return `
+        bg-orange-100
+        text-orange-700
+        dark:bg-orange-900
+        dark:text-orange-200
+      `;
+    }
+
+    return `
+      bg-gray-100
+      text-gray-700
+      dark:bg-gray-700
+      dark:text-gray-200
+    `;
+  };
+
+  const progressBarClass = (
+    progress: number
+  ) => {
+    if (progress === 100) {
+      return 'bg-green-600';
+    }
+
+    if (progress >= 76) {
+      return 'bg-blue-600';
+    }
+
+    if (progress >= 51) {
+      return 'bg-cyan-600';
+    }
+
+    if (progress >= 26) {
+      return 'bg-yellow-500';
+    }
+
+    if (progress > 0) {
+      return 'bg-orange-500';
+    }
+
+    return 'bg-gray-400';
   };
 
   /*
@@ -656,12 +872,8 @@ export default function DetailMonitoringPage() {
 
       const total =
         values.reduce(
-          (
-            sum,
-            value
-          ) =>
-            sum +
-            value,
+          (sum, value) =>
+            sum + value,
           0
         );
 
@@ -732,9 +944,7 @@ export default function DetailMonitoringPage() {
     <>
       <div className="max-w-6xl mx-auto">
 
-        {/* ==========================================================
-            BACK
-        ========================================================== */}
+        {/* BACK */}
 
         <button
           onClick={() =>
@@ -751,18 +961,14 @@ export default function DetailMonitoringPage() {
           Kembali ke Monitoring
         </button>
 
-        {/* ==========================================================
-            HEADER
-        ========================================================== */}
+        {/* HEADER */}
 
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
 
           <div className="flex items-center gap-3">
 
             <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-xl">
-
               <ClipboardCheck className="text-blue-600 dark:text-blue-300" />
-
             </div>
 
             <div>
@@ -798,8 +1004,6 @@ export default function DetailMonitoringPage() {
               )}
             </span>
 
-            {/* EDIT */}
-
             <button
               onClick={() =>
                 router.push(
@@ -819,14 +1023,9 @@ export default function DetailMonitoringPage() {
                 transition
               "
             >
-              <Pencil
-                size={17}
-              />
-
+              <Pencil size={17} />
               Edit
             </button>
-
-            {/* DELETE */}
 
             <button
               onClick={() => {
@@ -848,10 +1047,7 @@ export default function DetailMonitoringPage() {
                 transition
               "
             >
-              <Trash2
-                size={17}
-              />
-
+              <Trash2 size={17} />
               Hapus
             </button>
 
@@ -859,13 +1055,9 @@ export default function DetailMonitoringPage() {
 
         </div>
 
-        {/* ==========================================================
-            SISWA + PKL
-        ========================================================== */}
+        {/* SISWA + PKL */}
 
         <div className="grid lg:grid-cols-2 gap-6 mb-6">
-
-          {/* SISWA */}
 
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-200 dark:border-gray-700 p-6">
 
@@ -887,8 +1079,7 @@ export default function DetailMonitoringPage() {
                 </p>
 
                 <p className="font-medium text-gray-900 dark:text-white">
-                  {siswa?.nama ||
-                    '-'}
+                  {siswa?.nama || '-'}
                 </p>
               </div>
 
@@ -898,8 +1089,7 @@ export default function DetailMonitoringPage() {
                 </p>
 
                 <p className="font-medium text-gray-900 dark:text-white">
-                  {siswa?.kelas ||
-                    '-'}
+                  {siswa?.kelas || '-'}
                 </p>
               </div>
 
@@ -909,8 +1099,7 @@ export default function DetailMonitoringPage() {
                 </p>
 
                 <p className="font-medium text-gray-900 dark:text-white">
-                  {siswa?.jurusan ||
-                    '-'}
+                  {siswa?.jurusan || '-'}
                 </p>
               </div>
 
@@ -921,9 +1110,7 @@ export default function DetailMonitoringPage() {
                   </p>
 
                   <p className="font-medium text-gray-900 dark:text-white">
-                    {
-                      siswa.nisn
-                    }
+                    {siswa.nisn}
                   </p>
                 </div>
               )}
@@ -931,8 +1118,6 @@ export default function DetailMonitoringPage() {
             </div>
 
           </div>
-
-          {/* PKL */}
 
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-200 dark:border-gray-700 p-6">
 
@@ -954,8 +1139,7 @@ export default function DetailMonitoringPage() {
                 </p>
 
                 <p className="font-medium text-gray-900 dark:text-white">
-                  {perusahaan?.nama ||
-                    '-'}
+                  {perusahaan?.nama || '-'}
                 </p>
               </div>
 
@@ -965,8 +1149,7 @@ export default function DetailMonitoringPage() {
                 </p>
 
                 <p className="font-medium text-gray-900 dark:text-white">
-                  {perusahaan?.bidang ||
-                    '-'}
+                  {perusahaan?.bidang || '-'}
                 </p>
               </div>
 
@@ -976,8 +1159,7 @@ export default function DetailMonitoringPage() {
                 </p>
 
                 <p className="font-medium text-gray-900 dark:text-white">
-                  {perusahaan?.alamat ||
-                    '-'}
+                  {perusahaan?.alamat || '-'}
                 </p>
               </div>
 
@@ -987,9 +1169,7 @@ export default function DetailMonitoringPage() {
 
         </div>
 
-        {/* ==========================================================
-            PELAKSANAAN
-        ========================================================== */}
+        {/* PELAKSANAAN */}
 
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-200 dark:border-gray-700 p-6 mb-6">
 
@@ -998,8 +1178,6 @@ export default function DetailMonitoringPage() {
           </h2>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-
-            {/* TANGGAL */}
 
             <div className="flex items-start gap-3">
 
@@ -1024,8 +1202,6 @@ export default function DetailMonitoringPage() {
 
             </div>
 
-            {/* WAKTU */}
-
             <div className="flex items-start gap-3">
 
               <Clock
@@ -1040,15 +1216,12 @@ export default function DetailMonitoringPage() {
                 </p>
 
                 <p className="font-medium text-gray-900 dark:text-white">
-                  {monitoring.waktu ||
-                    '-'}
+                  {monitoring.waktu || '-'}
                 </p>
 
               </div>
 
             </div>
-
-            {/* JENIS */}
 
             <div className="flex items-start gap-3">
 
@@ -1078,8 +1251,113 @@ export default function DetailMonitoringPage() {
         </div>
 
         {/* ==========================================================
-            PENILAIAN
+            PROGRESS PROJECT AKHIR
         ========================================================== */}
+
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-200 dark:border-gray-700 p-6 mb-6">
+
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+
+            <div className="flex items-start gap-3">
+
+              <div className="bg-purple-100 dark:bg-purple-900 p-3 rounded-xl">
+
+                <FolderKanban className="text-purple-600 dark:text-purple-300" />
+
+              </div>
+
+              <div>
+
+                <h2 className="font-semibold text-lg text-gray-900 dark:text-white">
+                  Progress Project Akhir PKL
+                </h2>
+
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Progress project siswa pada saat monitoring ini.
+                </p>
+
+              </div>
+
+            </div>
+
+            <div className="flex items-center gap-3">
+
+              <span
+                className={`
+                  px-3
+                  py-1.5
+                  rounded-full
+                  text-sm
+                  font-medium
+                  ${progressBadgeClass(
+                    monitoring.progressProject
+                  )}
+                `}
+              >
+                {progressLabel(
+                  monitoring.progressProject
+                )}
+              </span>
+
+              {hasProgress ? (
+                <span className="text-3xl font-bold text-gray-900 dark:text-white">
+                  {progressProject}%
+                </span>
+              ) : (
+                <span className="text-sm text-gray-400 dark:text-gray-500">
+                  -
+                </span>
+              )}
+
+            </div>
+
+          </div>
+
+          {hasProgress ? (
+            <>
+              <div className="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+
+                <motion.div
+                  initial={{
+                    width: 0,
+                  }}
+                  animate={{
+                    width:
+                      `${progressProject}%`,
+                  }}
+                  transition={{
+                    duration: 0.5,
+                  }}
+                  className={`
+                    h-full
+                    rounded-full
+                    ${progressBarClass(
+                      progressProject
+                    )}
+                  `}
+                />
+
+              </div>
+
+              <div className="flex justify-between mt-2 text-xs text-gray-500 dark:text-gray-400">
+
+                <span>0%</span>
+                <span>25%</span>
+                <span>50%</span>
+                <span>75%</span>
+                <span>100%</span>
+
+              </div>
+            </>
+          ) : (
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-sm text-gray-500 dark:text-gray-300">
+              Progress project belum dicatat pada monitoring ini.
+            </div>
+          )}
+
+        </div>
+
+        {/* PENILAIAN */}
 
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-200 dark:border-gray-700 p-6 mb-6">
 
@@ -1097,8 +1375,7 @@ export default function DetailMonitoringPage() {
 
             </div>
 
-            {rataRata >
-              0 && (
+            {rataRata > 0 && (
               <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-4 py-2">
 
                 <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -1122,10 +1399,7 @@ export default function DetailMonitoringPage() {
             {Object.entries(
               criteriaLabels
             ).map(
-              ([
-                key,
-                label,
-              ]) => {
+              ([key, label]) => {
                 const nilai =
                   monitoring.kriteria?.[
                     key as keyof typeof monitoring.kriteria
@@ -1133,25 +1407,19 @@ export default function DetailMonitoringPage() {
 
                 return (
                   <div
-                    key={
-                      key
-                    }
+                    key={key}
                     className="flex items-center justify-between gap-4 border border-gray-200 dark:border-gray-700 rounded-lg p-4"
                   >
 
                     <div>
 
                       <p className="font-medium text-gray-900 dark:text-white">
-                        {
-                          label
-                        }
+                        {label}
                       </p>
 
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         Nilai:{' '}
-                        {nilai ||
-                          '-'}{' '}
-                        / 4
+                        {nilai || '-'} / 4
                       </p>
 
                     </div>
@@ -1182,9 +1450,7 @@ export default function DetailMonitoringPage() {
 
         </div>
 
-        {/* ==========================================================
-            CATATAN
-        ========================================================== */}
+        {/* CATATAN */}
 
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-200 dark:border-gray-700 p-6">
 
@@ -1193,8 +1459,6 @@ export default function DetailMonitoringPage() {
           </h2>
 
           <div className="space-y-6">
-
-            {/* PERKEMBANGAN */}
 
             <div>
 
@@ -1209,8 +1473,6 @@ export default function DetailMonitoringPage() {
 
             </div>
 
-            {/* KENDALA */}
-
             <div>
 
               <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
@@ -1223,8 +1485,6 @@ export default function DetailMonitoringPage() {
               </div>
 
             </div>
-
-            {/* TINDAK LANJUT */}
 
             <div>
 
@@ -1245,11 +1505,10 @@ export default function DetailMonitoringPage() {
 
       </div>
 
-      {/* ================================================================
-          MODAL HAPUS
-      ================================================================= */}
+      {/* MODAL DELETE */}
 
       <AnimatePresence>
+
         {showDeleteModal && (
           <motion.div
             initial={{
@@ -1312,18 +1571,24 @@ export default function DetailMonitoringPage() {
               </h2>
 
               <p className="text-sm text-center text-gray-500 dark:text-gray-400 mt-2">
+
                 Data monitoring{' '}
+
                 <strong>
                   {siswa?.nama ||
                     'siswa'}
                 </strong>{' '}
+
                 tanggal{' '}
+
                 <strong>
                   {formatTanggal(
                     monitoring.tanggal
                   )}
                 </strong>{' '}
+
                 akan dihapus permanen.
+
               </p>
 
               {deleteError && (
@@ -1336,9 +1601,7 @@ export default function DetailMonitoringPage() {
 
                 <button
                   type="button"
-                  disabled={
-                    deleting
-                  }
+                  disabled={deleting}
                   onClick={() =>
                     setShowDeleteModal(
                       false
@@ -1363,9 +1626,7 @@ export default function DetailMonitoringPage() {
 
                 <button
                   type="button"
-                  disabled={
-                    deleting
-                  }
+                  disabled={deleting}
                   onClick={
                     handleDelete
                   }
@@ -1382,9 +1643,7 @@ export default function DetailMonitoringPage() {
                     rounded-lg
                   "
                 >
-                  <Trash2
-                    size={17}
-                  />
+                  <Trash2 size={17} />
 
                   {deleting
                     ? 'Menghapus...'
@@ -1397,8 +1656,8 @@ export default function DetailMonitoringPage() {
 
           </motion.div>
         )}
-      </AnimatePresence>
 
+      </AnimatePresence>
     </>
   );
 }

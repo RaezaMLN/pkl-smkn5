@@ -23,9 +23,16 @@ import {
   ArrowLeft,
   Building2,
   ClipboardCheck,
+  FolderKanban,
   Save,
   User,
 } from 'lucide-react';
+
+/*
+|--------------------------------------------------------------------------
+| INTERFACE
+|--------------------------------------------------------------------------
+*/
 
 interface Kriteria {
   kedisiplinan: number;
@@ -46,6 +53,14 @@ interface MonitoringData {
   waktu?: string;
   jenisMonitoring?: string;
 
+  /*
+  |--------------------------------------------------------------------------
+  | PROJECT
+  |--------------------------------------------------------------------------
+  */
+
+  progressProject?: number;
+
   kriteria?: Partial<Kriteria>;
 
   deskripsiPerkembangan?: string;
@@ -59,6 +74,7 @@ interface MonitoringData {
 
 interface SiswaData {
   id: string;
+
   nama?: string;
   kelas?: string;
   jurusan?: string;
@@ -68,10 +84,17 @@ interface SiswaData {
 
 interface PerusahaanData {
   id: string;
+
   nama?: string;
 
   [key: string]: any;
 }
+
+/*
+|--------------------------------------------------------------------------
+| KRITERIA
+|--------------------------------------------------------------------------
+*/
 
 const criteriaList = [
   {
@@ -124,7 +147,7 @@ export default function EditMonitoringPage() {
 
   /*
   |--------------------------------------------------------------------------
-  | DATA
+  | SISWA + PERUSAHAAN
   |--------------------------------------------------------------------------
   */
 
@@ -137,6 +160,12 @@ export default function EditMonitoringPage() {
     useState<PerusahaanData | null>(
       null
     );
+
+  /*
+  |--------------------------------------------------------------------------
+  | PELAKSANAAN
+  |--------------------------------------------------------------------------
+  */
 
   const [tanggal, setTanggal] =
     useState('');
@@ -151,6 +180,23 @@ export default function EditMonitoringPage() {
     'kunjungan_langsung'
   );
 
+  /*
+  |--------------------------------------------------------------------------
+  | PROGRESS PROJECT
+  |--------------------------------------------------------------------------
+  */
+
+  const [
+    progressProject,
+    setProgressProject,
+  ] = useState(0);
+
+  /*
+  |--------------------------------------------------------------------------
+  | KRITERIA
+  |--------------------------------------------------------------------------
+  */
+
   const [
     kriteria,
     setKriteria,
@@ -158,6 +204,12 @@ export default function EditMonitoringPage() {
     useState<Kriteria>(
       defaultKriteria
     );
+
+  /*
+  |--------------------------------------------------------------------------
+  | CATATAN
+  |--------------------------------------------------------------------------
+  */
 
   const [
     deskripsiPerkembangan,
@@ -179,7 +231,7 @@ export default function EditMonitoringPage() {
 
   /*
   |--------------------------------------------------------------------------
-  | UI STATE
+  | UI
   |--------------------------------------------------------------------------
   */
 
@@ -213,16 +265,24 @@ export default function EditMonitoringPage() {
 
   /*
   |--------------------------------------------------------------------------
-  | FETCH EXISTING MONITORING
+  | FETCH MONITORING
   |--------------------------------------------------------------------------
   */
 
   useEffect(() => {
+    let cancelled = false;
+
     const fetchMonitoring =
       async () => {
         try {
           setLoading(true);
           setError('');
+
+          /*
+          |--------------------------------------------------------------------------
+          | PEMBIMBING LOGIN
+          |--------------------------------------------------------------------------
+          */
 
           const pembimbingLocal =
             localStorage.getItem(
@@ -244,33 +304,40 @@ export default function EditMonitoringPage() {
               pembimbingLocal
             );
 
-          /*
-          |--------------------------------------------------------------------------
-          | MONITORING
-          |--------------------------------------------------------------------------
-          */
-
-          const monitoringDoc =
-            await getDoc(
-              doc(
-                db,
-                'monitoring',
-                id
-              )
-            );
-
-          if (
-            !monitoringDoc.exists()
-          ) {
-            setError(
-              'Data monitoring tidak ditemukan.'
+          if (!pembimbing?.id) {
+            router.replace(
+              '/pembimbing/login'
             );
 
             return;
           }
 
-          const data =
-            monitoringDoc.data() as MonitoringData;
+         /*
+|--------------------------------------------------------------------------
+| MONITORING
+|--------------------------------------------------------------------------
+*/
+
+const monitoringDoc =
+  await getDoc(
+    doc(
+      db,
+      'monitoring',
+      id
+    )
+  );
+
+if (!monitoringDoc.exists()) {
+  if (!cancelled) {
+    setError(
+      'Data monitoring tidak ditemukan.'
+    );
+  }
+
+  return;
+}
+
+const data = monitoringDoc.data() as MonitoringData;
 
           /*
           |--------------------------------------------------------------------------
@@ -282,114 +349,146 @@ export default function EditMonitoringPage() {
             data.pembimbingId !==
             pembimbing.id
           ) {
-            setError(
-              'Anda tidak memiliki izin untuk mengedit monitoring ini.'
-            );
+            if (!cancelled) {
+              setError(
+                'Anda tidak memiliki izin untuk mengedit monitoring ini.'
+              );
+            }
 
             return;
           }
 
           /*
           |--------------------------------------------------------------------------
-          | SET FORM
+          | FORM
           |--------------------------------------------------------------------------
           */
 
-          setTanggal(
-            data.tanggal ||
-              ''
-          );
+          if (!cancelled) {
+            setTanggal(
+              data.tanggal ||
+                ''
+            );
 
-          setWaktu(
-            data.waktu ||
-              ''
-          );
+            setWaktu(
+              data.waktu ||
+                ''
+            );
 
-          setJenisMonitoring(
-            data.jenisMonitoring ||
-              'kunjungan_langsung'
-          );
+            setJenisMonitoring(
+              data.jenisMonitoring ||
+                'kunjungan_langsung'
+            );
 
-          setKriteria({
-            ...defaultKriteria,
-            ...(data.kriteria ||
-              {}),
-          });
+            /*
+            |--------------------------------------------------------------------------
+            | PROGRESS
+            |--------------------------------------------------------------------------
+            */
 
-          setDeskripsiPerkembangan(
-            data.deskripsiPerkembangan ||
-              ''
-          );
+            setProgressProject(
+              typeof data.progressProject ===
+                'number'
+                ? Math.min(
+                    Math.max(
+                      data.progressProject,
+                      0
+                    ),
+                    100
+                  )
+                : 0
+            );
 
-          setKendala(
-            data.kendala ||
-              ''
-          );
+            setKriteria({
+              ...defaultKriteria,
+              ...(data.kriteria ||
+                {}),
+            });
 
-          setTindakLanjut(
-            data.tindakLanjut ||
-              ''
-          );
+            setDeskripsiPerkembangan(
+              data.deskripsiPerkembangan ||
+                ''
+            );
 
-          setStatusPerkembangan(
-            data.statusPerkembangan ||
-              'baik'
-          );
+            setKendala(
+              data.kendala ||
+                ''
+            );
 
-          /*
-          |--------------------------------------------------------------------------
-          | SISWA
-          |--------------------------------------------------------------------------
-          */
+            setTindakLanjut(
+              data.tindakLanjut ||
+                ''
+            );
 
-          if (
-            data.siswaId
-          ) {
-            const siswaDoc =
-              await getDoc(
-                doc(
-                  db,
-                  'siswa',
-                  data.siswaId
-                )
-              );
-
-            if (
-              siswaDoc.exists()
-            ) {
-              setSiswa({
-                id: siswaDoc.id,
-                ...siswaDoc.data(),
-              });
-            }
+            setStatusPerkembangan(
+              data.statusPerkembangan ||
+                'baik'
+            );
           }
 
           /*
           |--------------------------------------------------------------------------
-          | PERUSAHAAN
+          | SISWA + PERUSAHAAN PARALEL
           |--------------------------------------------------------------------------
           */
 
-          if (
-            data.perusahaanId
-          ) {
-            const perusahaanDoc =
-              await getDoc(
-                doc(
-                  db,
-                  'perusahaan',
-                  data.perusahaanId
+          const siswaPromise =
+            data.siswaId
+              ? getDoc(
+                  doc(
+                    db,
+                    'siswa',
+                    data.siswaId
+                  )
                 )
-              );
+              : Promise.resolve(
+                  null
+                );
 
-            if (
-              perusahaanDoc.exists()
-            ) {
-              setPerusahaan({
-                id: perusahaanDoc.id,
-                ...perusahaanDoc.data(),
-              });
-            }
+          const perusahaanPromise =
+            data.perusahaanId
+              ? getDoc(
+                  doc(
+                    db,
+                    'perusahaan',
+                    data.perusahaanId
+                  )
+                )
+              : Promise.resolve(
+                  null
+                );
+
+          const [
+            siswaDoc,
+            perusahaanDoc,
+          ] =
+            await Promise.all([
+              siswaPromise,
+              perusahaanPromise,
+            ]);
+
+          if (
+            !cancelled &&
+            siswaDoc &&
+            siswaDoc.exists()
+          ) {
+            setSiswa({
+              id: siswaDoc.id,
+              ...siswaDoc.data(),
+            });
+          }
+
+          if (
+            !cancelled &&
+            perusahaanDoc &&
+            perusahaanDoc.exists()
+          ) {
+            setPerusahaan({
+              id:
+                perusahaanDoc.id,
+
+              ...perusahaanDoc.data(),
+            });
           }
         } catch (err) {
           console.error(
@@ -397,22 +496,30 @@ export default function EditMonitoringPage() {
             err
           );
 
-          setError(
-            'Terjadi kesalahan saat mengambil data monitoring.'
-          );
+          if (!cancelled) {
+            setError(
+              'Terjadi kesalahan saat mengambil data monitoring.'
+            );
+          }
         } finally {
-          setLoading(false);
+          if (!cancelled) {
+            setLoading(false);
+          }
         }
       };
 
     if (id) {
       fetchMonitoring();
     }
+
+    return () => {
+      cancelled = true;
+    };
   }, [id, router]);
 
   /*
   |--------------------------------------------------------------------------
-  | CHANGE KRITERIA
+  | KRITERIA
   |--------------------------------------------------------------------------
   */
 
@@ -430,55 +537,201 @@ export default function EditMonitoringPage() {
 
   /*
   |--------------------------------------------------------------------------
-  | VALIDATE
+  | PROGRESS
   |--------------------------------------------------------------------------
   */
 
-  const validateForm =
-    () => {
-      setError('');
+  const handleProgressChange = (
+    value: number
+  ) => {
+    const normalized =
+      Math.min(
+        Math.max(
+          Number.isNaN(value)
+            ? 0
+            : value,
+          0
+        ),
+        100
+      );
 
-      if (!tanggal) {
-        setError(
-          'Tanggal monitoring wajib diisi.'
-        );
+    setProgressProject(
+      normalized
+    );
+  };
 
-        return false;
-      }
+  const progressLabel = (
+    progress: number
+  ) => {
+    if (progress === 0) {
+      return 'Belum Mulai';
+    }
 
-      const nilaiKriteria =
-        Object.values(
-          kriteria
-        );
+    if (progress <= 25) {
+      return 'Tahap Awal';
+    }
 
-      const belumLengkap =
-        nilaiKriteria.some(
-          (nilai) =>
-            !nilai ||
-            nilai < 1 ||
-            nilai > 4
-        );
+    if (progress <= 50) {
+      return 'Dalam Proses';
+    }
 
-      if (belumLengkap) {
-        setError(
-          'Semua kriteria monitoring wajib dinilai.'
-        );
+    if (progress <= 75) {
+      return 'Berkembang';
+    }
 
-        return false;
-      }
+    if (progress < 100) {
+      return 'Hampir Selesai';
+    }
 
-      if (
-        !deskripsiPerkembangan.trim()
-      ) {
-        setError(
-          'Deskripsi perkembangan wajib diisi.'
-        );
+    return 'Selesai';
+  };
 
-        return false;
-      }
+  const progressBadgeClass = (
+    progress: number
+  ) => {
+    if (progress === 100) {
+      return `
+        bg-green-100
+        text-green-700
+        dark:bg-green-900
+        dark:text-green-200
+      `;
+    }
 
-      return true;
-    };
+    if (progress >= 76) {
+      return `
+        bg-blue-100
+        text-blue-700
+        dark:bg-blue-900
+        dark:text-blue-200
+      `;
+    }
+
+    if (progress >= 51) {
+      return `
+        bg-cyan-100
+        text-cyan-700
+        dark:bg-cyan-900
+        dark:text-cyan-200
+      `;
+    }
+
+    if (progress >= 26) {
+      return `
+        bg-yellow-100
+        text-yellow-700
+        dark:bg-yellow-900
+        dark:text-yellow-200
+      `;
+    }
+
+    if (progress > 0) {
+      return `
+        bg-orange-100
+        text-orange-700
+        dark:bg-orange-900
+        dark:text-orange-200
+      `;
+    }
+
+    return `
+      bg-gray-100
+      text-gray-700
+      dark:bg-gray-700
+      dark:text-gray-200
+    `;
+  };
+
+  const progressBarClass = (
+    progress: number
+  ) => {
+    if (progress === 100) {
+      return 'bg-green-600';
+    }
+
+    if (progress >= 76) {
+      return 'bg-blue-600';
+    }
+
+    if (progress >= 51) {
+      return 'bg-cyan-600';
+    }
+
+    if (progress >= 26) {
+      return 'bg-yellow-500';
+    }
+
+    if (progress > 0) {
+      return 'bg-orange-500';
+    }
+
+    return 'bg-gray-400';
+  };
+
+  /*
+  |--------------------------------------------------------------------------
+  | VALIDASI
+  |--------------------------------------------------------------------------
+  */
+
+  const validateForm = () => {
+    setError('');
+
+    if (!tanggal) {
+      setError(
+        'Tanggal monitoring wajib diisi.'
+      );
+
+      return false;
+    }
+
+    if (
+      progressProject < 0 ||
+      progressProject > 100 ||
+      Number.isNaN(
+        progressProject
+      )
+    ) {
+      setError(
+        'Progress project harus berada antara 0% sampai 100%.'
+      );
+
+      return false;
+    }
+
+    const nilaiKriteria =
+      Object.values(
+        kriteria
+      );
+
+    const belumLengkap =
+      nilaiKriteria.some(
+        (nilai) =>
+          !nilai ||
+          nilai < 1 ||
+          nilai > 4
+      );
+
+    if (belumLengkap) {
+      setError(
+        'Semua kriteria monitoring wajib dinilai.'
+      );
+
+      return false;
+    }
+
+    if (
+      !deskripsiPerkembangan.trim()
+    ) {
+      setError(
+        'Deskripsi perkembangan wajib diisi.'
+      );
+
+      return false;
+    }
+
+    return true;
+  };
 
   /*
   |--------------------------------------------------------------------------
@@ -497,6 +750,7 @@ export default function EditMonitoringPage() {
 
     try {
       setSaving(true);
+      setError('');
 
       const pembimbingLocal =
         localStorage.getItem(
@@ -526,7 +780,9 @@ export default function EditMonitoringPage() {
         );
 
       /*
-      | Ambil ulang untuk security check sederhana
+      |--------------------------------------------------------------------------
+      | SECURITY CHECK
+      |--------------------------------------------------------------------------
       */
 
       const monitoringSnap =
@@ -560,7 +816,7 @@ export default function EditMonitoringPage() {
 
       /*
       |--------------------------------------------------------------------------
-      | UPDATE FIRESTORE
+      | UPDATE
       |--------------------------------------------------------------------------
       */
 
@@ -568,9 +824,24 @@ export default function EditMonitoringPage() {
         monitoringRef,
         {
           tanggal,
+
           waktu,
 
           jenisMonitoring,
+
+          /*
+          |--------------------------------------------------------------------------
+          | PROJECT
+          |--------------------------------------------------------------------------
+          */
+
+          progressProject,
+
+          /*
+          |--------------------------------------------------------------------------
+          | KRITERIA
+          |--------------------------------------------------------------------------
+          */
 
           kriteria,
 
@@ -666,9 +937,7 @@ export default function EditMonitoringPage() {
   return (
     <div className="max-w-5xl mx-auto">
 
-      {/* ================================================================
-          BACK
-      ================================================================= */}
+      {/* BACK */}
 
       <button
         type="button"
@@ -679,16 +948,11 @@ export default function EditMonitoringPage() {
         }
         className="flex items-center gap-2 mb-4 text-blue-600 dark:text-blue-400 hover:underline"
       >
-        <ArrowLeft
-          size={16}
-        />
-
+        <ArrowLeft size={16} />
         Kembali
       </button>
 
-      {/* ================================================================
-          HEADER
-      ================================================================= */}
+      {/* HEADER */}
 
       <div className="flex items-center gap-3 mb-6">
 
@@ -712,9 +976,7 @@ export default function EditMonitoringPage() {
 
       </div>
 
-      {/* ================================================================
-          ERROR
-      ================================================================= */}
+      {/* ERROR */}
 
       {error && (
         <div className="mb-5 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 p-3 rounded-lg">
@@ -729,9 +991,7 @@ export default function EditMonitoringPage() {
         className="space-y-6"
       >
 
-        {/* ================================================================
-            SISWA
-        ================================================================= */}
+        {/* SISWA */}
 
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow rounded-xl p-6">
 
@@ -746,8 +1006,6 @@ export default function EditMonitoringPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
-
-            {/* NAMA */}
 
             <div>
 
@@ -777,8 +1035,6 @@ export default function EditMonitoringPage() {
 
             </div>
 
-            {/* KELAS */}
-
             <div>
 
               <label className="block text-sm mb-2 text-gray-700 dark:text-gray-300">
@@ -807,8 +1063,6 @@ export default function EditMonitoringPage() {
 
             </div>
 
-            {/* JURUSAN */}
-
             <div>
 
               <label className="block text-sm mb-2 text-gray-700 dark:text-gray-300">
@@ -836,8 +1090,6 @@ export default function EditMonitoringPage() {
               />
 
             </div>
-
-            {/* PERUSAHAAN */}
 
             <div>
 
@@ -885,9 +1137,7 @@ export default function EditMonitoringPage() {
 
         </div>
 
-        {/* ================================================================
-            PELAKSANAAN
-        ================================================================= */}
+        {/* PELAKSANAAN */}
 
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow rounded-xl p-6">
 
@@ -897,8 +1147,6 @@ export default function EditMonitoringPage() {
 
           <div className="grid md:grid-cols-3 gap-4">
 
-            {/* TANGGAL */}
-
             <div>
 
               <label className="block text-sm mb-2 text-gray-700 dark:text-gray-300">
@@ -907,15 +1155,10 @@ export default function EditMonitoringPage() {
 
               <input
                 type="date"
-                value={
-                  tanggal
-                }
-                onChange={(
-                  e
-                ) =>
+                value={tanggal}
+                onChange={(e) =>
                   setTanggal(
-                    e.target
-                      .value
+                    e.target.value
                   )
                 }
                 className="
@@ -933,8 +1176,6 @@ export default function EditMonitoringPage() {
               />
 
             </div>
-
-            {/* WAKTU */}
 
             <div>
 
@@ -944,15 +1185,10 @@ export default function EditMonitoringPage() {
 
               <input
                 type="time"
-                value={
-                  waktu
-                }
-                onChange={(
-                  e
-                ) =>
+                value={waktu}
+                onChange={(e) =>
                   setWaktu(
-                    e.target
-                      .value
+                    e.target.value
                   )
                 }
                 className="
@@ -970,8 +1206,6 @@ export default function EditMonitoringPage() {
               />
 
             </div>
-
-            {/* JENIS */}
 
             <div>
 
@@ -983,12 +1217,9 @@ export default function EditMonitoringPage() {
                 value={
                   jenisMonitoring
                 }
-                onChange={(
-                  e
-                ) =>
+                onChange={(e) =>
                   setJenisMonitoring(
-                    e.target
-                      .value
+                    e.target.value
                   )
                 }
                 className="
@@ -1034,8 +1265,173 @@ export default function EditMonitoringPage() {
         </div>
 
         {/* ================================================================
-            KRITERIA
+            PROGRESS PROJECT
         ================================================================= */}
+
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow rounded-xl p-6">
+
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+
+            <div className="flex items-start gap-3">
+
+              <div className="bg-purple-100 dark:bg-purple-900 p-3 rounded-xl">
+
+                <FolderKanban className="text-purple-600 dark:text-purple-300" />
+
+              </div>
+
+              <div>
+
+                <h2 className="font-semibold text-lg text-gray-900 dark:text-white">
+                  Progress Project Akhir PKL
+                </h2>
+
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Perbarui progress project siswa pada monitoring ini.
+                </p>
+
+              </div>
+
+            </div>
+
+            <div className="flex items-center gap-3">
+
+              <span
+                className={`
+                  px-3
+                  py-1.5
+                  rounded-full
+                  text-sm
+                  font-medium
+                  ${progressBadgeClass(
+                    progressProject
+                  )}
+                `}
+              >
+                {progressLabel(
+                  progressProject
+                )}
+              </span>
+
+              <span className="text-3xl font-bold text-gray-900 dark:text-white">
+                {progressProject}%
+              </span>
+
+            </div>
+
+          </div>
+
+          <div className="grid md:grid-cols-[1fr_120px] gap-5 items-end">
+
+            {/* SLIDER */}
+
+            <div>
+
+              <label className="block text-sm font-medium mb-3 text-gray-700 dark:text-gray-200">
+                Persentase Progress
+              </label>
+
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                value={
+                  progressProject
+                }
+                onChange={(e) =>
+                  handleProgressChange(
+                    Number(
+                      e.target.value
+                    )
+                  )
+                }
+                className="w-full cursor-pointer accent-blue-600"
+              />
+
+              <div className="flex justify-between mt-2 text-xs text-gray-500 dark:text-gray-400">
+
+                <span>0%</span>
+                <span>25%</span>
+                <span>50%</span>
+                <span>75%</span>
+                <span>100%</span>
+
+              </div>
+
+            </div>
+
+            {/* NUMBER */}
+
+            <div>
+
+              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">
+                Progress
+              </label>
+
+              <div className="relative">
+
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={
+                    progressProject
+                  }
+                  onChange={(e) =>
+                    handleProgressChange(
+                      Number(
+                        e.target.value
+                      )
+                    )
+                  }
+                  className="
+                    w-full
+                    border
+                    rounded-lg
+                    p-2.5
+                    pr-10
+                    dark:bg-gray-700
+                    dark:border-gray-600
+                    text-gray-900
+                    dark:text-white
+                  "
+                />
+
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 dark:text-gray-400">
+                  %
+                </span>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <div className="mt-6 w-full h-4 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+
+            <div
+              style={{
+                width:
+                  `${progressProject}%`,
+              }}
+              className={`
+                h-full
+                rounded-full
+                transition-all
+                duration-300
+                ${progressBarClass(
+                  progressProject
+                )}
+              `}
+            />
+
+          </div>
+
+        </div>
+
+        {/* KRITERIA */}
 
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow rounded-xl p-6">
 
@@ -1059,9 +1455,7 @@ export default function EditMonitoringPage() {
                 >
 
                   <p className="font-medium text-gray-900 dark:text-white mb-3">
-                    {
-                      item.label
-                    }
+                    {item.label}
                   </p>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -1069,28 +1463,22 @@ export default function EditMonitoringPage() {
                     {[
                       {
                         value: 1,
-                        label:
-                          'Kurang',
+                        label: 'Kurang',
                       },
                       {
                         value: 2,
-                        label:
-                          'Cukup',
+                        label: 'Cukup',
                       },
                       {
                         value: 3,
-                        label:
-                          'Baik',
+                        label: 'Baik',
                       },
                       {
                         value: 4,
-                        label:
-                          'Sangat Baik',
+                        label: 'Sangat Baik',
                       },
                     ].map(
-                      (
-                        option
-                      ) => {
+                      (option) => {
                         const active =
                           kriteria[
                             item.key
@@ -1136,9 +1524,7 @@ export default function EditMonitoringPage() {
                             />
 
                             <span className="text-sm text-gray-700 dark:text-gray-200">
-                              {
-                                option.label
-                              }
+                              {option.label}
                             </span>
 
                           </label>
@@ -1156,17 +1542,13 @@ export default function EditMonitoringPage() {
 
         </div>
 
-        {/* ================================================================
-            CATATAN
-        ================================================================= */}
+        {/* CATATAN */}
 
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow rounded-xl p-6 space-y-5">
 
           <h2 className="font-semibold text-lg text-gray-900 dark:text-white">
             Catatan Monitoring
           </h2>
-
-          {/* PERKEMBANGAN */}
 
           <div>
 
@@ -1179,12 +1561,9 @@ export default function EditMonitoringPage() {
               value={
                 deskripsiPerkembangan
               }
-              onChange={(
-                e
-              ) =>
+              onChange={(e) =>
                 setDeskripsiPerkembangan(
-                  e.target
-                    .value
+                  e.target.value
                 )
               }
               placeholder="Tuliskan perkembangan siswa selama PKL..."
@@ -1204,8 +1583,6 @@ export default function EditMonitoringPage() {
 
           </div>
 
-          {/* KENDALA */}
-
           <div>
 
             <label className="block text-sm mb-2 text-gray-700 dark:text-gray-300">
@@ -1217,12 +1594,9 @@ export default function EditMonitoringPage() {
               value={
                 kendala
               }
-              onChange={(
-                e
-              ) =>
+              onChange={(e) =>
                 setKendala(
-                  e.target
-                    .value
+                  e.target.value
                 )
               }
               placeholder="Tuliskan kendala jika ada..."
@@ -1242,8 +1616,6 @@ export default function EditMonitoringPage() {
 
           </div>
 
-          {/* TINDAK LANJUT */}
-
           <div>
 
             <label className="block text-sm mb-2 text-gray-700 dark:text-gray-300">
@@ -1255,12 +1627,9 @@ export default function EditMonitoringPage() {
               value={
                 tindakLanjut
               }
-              onChange={(
-                e
-              ) =>
+              onChange={(e) =>
                 setTindakLanjut(
-                  e.target
-                    .value
+                  e.target.value
                 )
               }
               placeholder="Tuliskan tindak lanjut atau saran pembimbing..."
@@ -1280,8 +1649,6 @@ export default function EditMonitoringPage() {
 
           </div>
 
-          {/* STATUS */}
-
           <div>
 
             <label className="block text-sm mb-2 text-gray-700 dark:text-gray-300">
@@ -1292,12 +1659,9 @@ export default function EditMonitoringPage() {
               value={
                 statusPerkembangan
               }
-              onChange={(
-                e
-              ) =>
+              onChange={(e) =>
                 setStatusPerkembangan(
-                  e.target
-                    .value
+                  e.target.value
                 )
               }
               className="
@@ -1337,9 +1701,7 @@ export default function EditMonitoringPage() {
 
         </div>
 
-        {/* ================================================================
-            ACTION
-        ================================================================= */}
+        {/* ACTION */}
 
         <div className="flex justify-end gap-3 pb-6">
 
@@ -1389,9 +1751,7 @@ export default function EditMonitoringPage() {
               transition
             "
           >
-            <Save
-              size={18}
-            />
+            <Save size={18} />
 
             {saving
               ? 'Menyimpan...'
