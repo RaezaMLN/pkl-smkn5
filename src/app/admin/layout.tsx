@@ -46,12 +46,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         <Header />
         <main
-          className={`flex-grow mx-auto px-4 py-6 transition-all duration-300 ${
-            isSidebarOpen ? 'ml-64' : 'ml-16'
-          }`} // Margin kiri berdasarkan status sidebar
+          className={`flex-grow w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 pb-24 md:pb-6 transition-all duration-300 ${
+            isSidebarOpen ? 'md:ml-64' : 'md:ml-16'
+          } ml-0`}
         >
           {children}
         </main>

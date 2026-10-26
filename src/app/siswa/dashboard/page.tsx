@@ -73,90 +73,77 @@ const SiswaDashboardPage = () => {
     fetchData();
   }, []);
 
-  if (loading) return <div className="p-4">Loading...</div>;
+  if (loading) return <div className="p-4 text-center">Loading...</div>;
   if (!siswa) return <div className="p-4 text-red-600">Data tidak ditemukan.</div>;
-  console.log(perusahaan)
 
   return (
-    <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen text-gray-800 dark:text-white">
-    <div className="max-w-4xl mx-auto space-y-6">
-      
+    <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6 text-gray-800 dark:text-white">
       {/* Header Siswa */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 flex justify-between items-center">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm sm:shadow-lg p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Halo, {siswa.nama} 👋</h1>
+          <h1 className="text-xl sm:text-2xl font-bold">Halo, {siswa.nama} 👋</h1>
           <p className="text-sm text-gray-600 dark:text-gray-300">Kelas: {siswa.kelas}</p>
         </div>
-        <Link href="/siswa/profil">
-          <button className="bg-gray-700 text-white py-2 px-4 rounded hover:bg-gray-600 transition">
+        <Link href="/siswa/profil" className="w-full sm:w-auto">
+          <button className="w-full sm:w-auto bg-gray-700 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition text-sm font-medium">
             Edit Profil
           </button>
         </Link>
       </div>
   
       {/* Pendaftaran PKL */}
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
-  <h2 className="text-xl font-semibold mb-3">📋 Pendaftaran PKL</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm sm:shadow-lg p-4 sm:p-6">
+        <h2 className="text-lg sm:text-xl font-semibold mb-3">📋 Pendaftaran PKL</h2>
 
-  {pendaftaran && perusahaan ? (
-    <>
-          <p className="text-green-600">
-            Anda sudah mendaftar untuk PKL di <br />
-            <span className="text-2xl text-blue-600 font-semibold">{perusahaan.nama}</span>
-          </p>
-          <p className="mt-4 inline-block bg-indigo-100 dark:bg-indigo-700 text-indigo-800 dark:text-white text-base font-semibold px-4 py-2 rounded-lg shadow-sm">
-            📊 Status: <span className="font-bold">{perusahaan.stats}</span>
-          </p>
-
-        </>
-      ) : (
-        <Link href="/siswa/pendaftaran">
-          <button className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition">
-            Daftar Tempat PKL
-          </button>
-        </Link>
-      )}
-    </div>
-
+        {pendaftaran && perusahaan ? (
+          <>
+            <p className="text-green-600 dark:text-green-400">
+              Anda sudah mendaftar untuk PKL di <br />
+              <span className="text-xl sm:text-2xl text-blue-600 dark:text-blue-400 font-semibold">{perusahaan.nama}</span>
+            </p>
+            <p className="mt-4 inline-block bg-indigo-100 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-200 text-sm sm:text-base font-semibold px-4 py-2 rounded-lg shadow-sm">
+              📊 Status: <span className="font-bold">{perusahaan.stats}</span>
+            </p>
+          </>
+        ) : (
+          <Link href="/siswa/pendaftaran" className="inline-block w-full sm:w-auto">
+            <button className="w-full sm:w-auto bg-blue-600 text-white py-2.5 px-4 rounded-lg hover:bg-blue-700 transition font-medium text-sm">
+              Daftar Tempat PKL
+            </button>
+          </Link>
+        )}
+      </div>
   
       {/* Info Perusahaan */}
       {perusahaan && (
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
-          <h2 className="text-xl font-semibold mb-3">🏢 Tempat PKL</h2>
-          <div className="space-y-1">
-            <p><strong>Perusahaan:</strong> {perusahaan.nama}</p>
-            <p><strong>Bidang:</strong> {perusahaan.bidang}</p>
-            <p><strong>Alamat:</strong> {perusahaan.alamat}</p>
-            <p><strong>Kontak:</strong> {perusahaan.kontak}</p>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm sm:shadow-lg p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold mb-3">🏢 Tempat PKL</h2>
+          <div className="space-y-1.5 text-sm sm:text-base">
+            <p><strong className="text-gray-700 dark:text-gray-300">Perusahaan:</strong> {perusahaan.nama}</p>
+            <p><strong className="text-gray-700 dark:text-gray-300">Bidang:</strong> {perusahaan.bidang}</p>
+            <p><strong className="text-gray-700 dark:text-gray-300">Alamat:</strong> {perusahaan.alamat}</p>
+            <p><strong className="text-gray-700 dark:text-gray-300">Kontak:</strong> {perusahaan.kontak}</p>
           </div>
         </div>
       )}
   
       {/* Aksi Dokumen */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 space-y-4">
-        <h2 className="text-xl font-semibold mb-3">📄 Dokumen Anda</h2>
-        <div className="flex flex-col sm:flex-row gap-4">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm sm:shadow-lg p-4 sm:p-6 space-y-4">
+        <h2 className="text-lg sm:text-xl font-semibold mb-3">📄 Dokumen Anda</h2>
+        <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={() => setOpenModal(true)}
-            className="flex-1 bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition"
+            className="w-full sm:flex-1 bg-green-600 text-white py-2.5 px-4 rounded-lg hover:bg-green-700 transition font-medium text-sm text-center"
           >
             Unduh Surat Pernyataan PKL
           </button>
-          {/* <button
-            onClick={() => setIsCVModalOpen(true)}
-            className="flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition"
-          >
-            Lihat & Unduh CV
-          </button> */}
         </div>
       </div>
+
+      {/* Modals */}
+      <SuratPernyataanModal isOpen={openModal} onClose={() => setOpenModal(false)} />
+      <CVModal isOpen={isCVModalOpen} onClose={() => setIsCVModalOpen(false)} />
     </div>
-  
-    {/* Modals */}
-    <SuratPernyataanModal isOpen={openModal} onClose={() => setOpenModal(false)} />
-    <CVModal isOpen={isCVModalOpen} onClose={() => setIsCVModalOpen(false)} />
-  </div>
-  
   );
 };
 

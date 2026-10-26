@@ -23,14 +23,14 @@ const Header = () => {
   if (!isClient) return null;
 
   return (
-    <header className="bg-blue-700 text-white py-4 shadow-md">
+    <header className="bg-blue-700 text-white py-3.5 shadow-md sticky top-0 z-30">
       <div className="container mx-auto px-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold pl-20">Admin Panel</h1> {/* Geser ke kanan */}
-        <div className="flex items-center space-x-4">
-          <span className="text-sm">Selamat datang, Admin!</span>
+        <h1 className="text-lg sm:text-xl font-bold md:pl-20 pl-0">Admin Panel</h1>
+        <div className="flex items-center space-x-3">
+          <span className="hidden sm:inline text-sm text-blue-100">Selamat datang, Admin!</span>
           <button
             onClick={handleLogout}
-            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+            className="bg-red-500 hover:bg-red-600 text-white px-3.5 py-1.5 rounded-lg text-sm font-medium transition"
           >
             Logout
           </button>

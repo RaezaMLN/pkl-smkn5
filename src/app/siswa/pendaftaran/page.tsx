@@ -168,20 +168,20 @@ useEffect(() => {
   );
 
   return (
-    <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
+    <div className="space-y-4">
       {/* Search & Filter */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         <input
           type="text"
           value={searchQuery}
           onChange={handleSearchChange}
           placeholder="Cari perusahaan..."
-          className="p-2 border border-gray-300 dark:border-gray-600 rounded-md w-full md:w-1/2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+          className="p-2.5 border border-gray-300 dark:border-gray-600 rounded-lg w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
         />
         <select
           value={selectedBidang}
           onChange={(e) => setSelectedBidang(e.target.value)}
-          className="p-2 border border-gray-300 dark:border-gray-600 rounded-md w-full md:w-1/4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+          className="p-2.5 border border-gray-300 dark:border-gray-600 rounded-lg w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
         >
           <option value="all">Semua Bidang</option>
           {uniqueBidang.map((b) => (
@@ -194,7 +194,7 @@ useEffect(() => {
         <select
           value={filterKuota}
           onChange={(e) => setFilterKuota(e.target.value)}
-          className="p-2 border border-gray-300 dark:border-gray-600 rounded-md w-full md:w-1/4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+          className="p-2.5 border border-gray-300 dark:border-gray-600 rounded-lg w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
         >
           <option value="all">Semua Kuota</option>
           <option value="tersedia">Kuota Tersedia</option>
@@ -203,7 +203,7 @@ useEffect(() => {
         <select
           value={itemsPerPage}
           onChange={(e) => setItemsPerPage(Number(e.target.value))}
-          className="p-2 border rounded-md w-full md:w-1/4"
+          className="p-2.5 border border-gray-300 dark:border-gray-600 rounded-lg w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
         >
           {[3, 6, 9, 12].map((num) => (
             <option key={num} value={num}>

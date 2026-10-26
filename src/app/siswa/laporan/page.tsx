@@ -251,198 +251,208 @@ useEffect(() => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
+    <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
 
       {/* ALERT */}
       {alertMsg && (
-        <div className={`p-3 mb-4 rounded-lg text-sm
-          ${alertType === 'success' && 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200'}
-          ${alertType === 'error' && 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200'}
-          ${alertType === 'warning' && 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-200'}
+        <div className={`p-3 rounded-lg text-sm
+          ${alertType === 'success' && 'bg-green-100 dark:bg-green-900/60 text-green-700 dark:text-green-200 border border-green-200 dark:border-green-800'}
+          ${alertType === 'error' && 'bg-red-100 dark:bg-red-900/60 text-red-700 dark:text-red-200 border border-red-200 dark:border-red-800'}
+          ${alertType === 'warning' && 'bg-yellow-100 dark:bg-yellow-900/60 text-yellow-700 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-800'}
         `}>
           {alertMsg}
         </div>
       )}
 
       {/* HEADER */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Laporan Harian PKL</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Laporan Harian PKL</h1>
 
         <button
           onClick={() => setShowExport(true)}
-          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg transition text-sm font-medium shadow-sm"
         >
           <Download size={16} />
           Download Jurnal
         </button>
       </div>
 
-      
-
       {/* FILTER */}
-      <div className="flex gap-3 mb-4 flex-col md:flex-row">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
+        {/* SEARCH */}
+        <input
+          type="text"
+          placeholder="Cari kegiatan..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+        />
 
-  {/* SEARCH */}
-  <input
-    type="text"
-    placeholder="Cari kegiatan..."
-    value={search}
-    onChange={(e) => setSearch(e.target.value)}
-    className="border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-  />
+        {/* FILTER BULAN */}
+        <select
+          value={filterBulan}
+          onChange={(e) => setFilterBulan(e.target.value)}
+          className="border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+        >
+          <option value="">Semua Bulan</option>
+          {[...Array(12)].map((_, i) => (
+            <option key={i} value={i}>
+              {new Date(0, i).toLocaleString('id-ID', { month: 'long' })}
+            </option>
+          ))}
+        </select>
 
-  {/* FILTER BULAN */}
-  <select
-    value={filterBulan}
-    onChange={(e) => setFilterBulan(e.target.value)}
-    className="border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-  >
-    <option value="">Semua Bulan</option>
-    {[...Array(12)].map((_, i) => (
-      <option key={i} value={i}>
-        {new Date(0, i).toLocaleString('id-ID', { month: 'long' })}
-      </option>
-    ))}
-  </select>
+        {/* SORT */}
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          className="border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+        >
+          <option value="terbaru">Tanggal Terbaru</option>
+          <option value="terlama">Tanggal Terlama</option>
+          <option value="az">Kegiatan A - Z</option>
+          <option value="za">Kegiatan Z - A</option>
+        </select>
 
-  {/* SORT */}
-<select
-  value={sortBy}
-  onChange={(e) => setSortBy(e.target.value)}
-  className="border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
->
-  <option value="terbaru">Tanggal Terbaru</option>
-  <option value="terlama">Tanggal Terlama</option>
-  <option value="az">Kegiatan A - Z</option>
-  <option value="za">Kegiatan Z - A</option>
-</select>
+        {/* LIMIT PER PAGE */}
+        <select
+          value={itemsPerPage}
+          onChange={(e) => setItemsPerPage(Number(e.target.value))}
+          className="border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+        >
+          <option value={5}>5 / halaman</option>
+          <option value={10}>10 / halaman</option>
+          <option value={20}>20 / halaman</option>
+          <option value={50}>50 / halaman</option>
+        </select>
+      </div>
 
-  {/* 🔥 LIMIT PER PAGE */}
-  <select
-    value={itemsPerPage}
-    onChange={(e) => setItemsPerPage(Number(e.target.value))}
-    className="border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-  >
-    <option value={5}>5 / halaman</option>
-    <option value={10}>10 / halaman</option>
-    <option value={20}>20 / halaman</option>
-    <option value={50}>50 / halaman</option>
-  </select>
+      {/* FORM INPUT */}
+      <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm sm:shadow-lg border border-gray-200 dark:border-gray-700 space-y-3.5">
+        <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
+          {editId ? 'Edit Laporan' : 'Tambah Laporan'}
+        </h2>
 
-</div>
+        <input
+          type="date"
+          value={tanggal}
+          onChange={(e) => setTanggal(e.target.value)}
+          className="w-full border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+        />
 
-{/* FORM INPUT */}
-<div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow dark:shadow-lg border border-gray-200 dark:border-gray-700 mb-6 space-y-4">
+        <input
+          type="text"
+          placeholder="Kegiatan"
+          value={kegiatan}
+          onChange={(e) => setKegiatan(e.target.value)}
+          className="w-full border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+        />
 
-  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-    {editId ? 'Edit Laporan' : 'Tambah Laporan'}
-  </h2>
+        <textarea
+          placeholder="Keterangan"
+          value={keterangan}
+          onChange={(e) => setKeterangan(e.target.value)}
+          rows={3}
+          className="w-full border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+        />
 
-  <input
-    type="date"
-    value={tanggal}
-    onChange={(e) => setTanggal(e.target.value)}
-    className="w-full border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-  />
+        <input
+          type="text"
+          placeholder="Link Foto (Google Drive)"
+          value={fotoUrl}
+          onChange={(e) => setFotoUrl(e.target.value)}
+          className="w-full border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+        />
 
-  <input
-    type="text"
-    placeholder="Kegiatan"
-    value={kegiatan}
-    onChange={(e) => setKegiatan(e.target.value)}
-    className="w-full border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-  />
+        <div className="flex gap-2 pt-1">
+          <button
+            onClick={handleSubmit}
+            className="flex-1 sm:flex-initial bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg transition text-sm font-medium"
+          >
+            {loading
+              ? 'Menyimpan...'
+              : editId
+              ? 'Update'
+              : 'Tambah'}
+          </button>
 
-  <textarea
-    placeholder="Keterangan"
-    value={keterangan}
-    onChange={(e) => setKeterangan(e.target.value)}
-    className="w-full border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-  />
-
-  <input
-    type="text"
-    placeholder="Link Foto (Google Drive)"
-    value={fotoUrl}
-    onChange={(e) => setFotoUrl(e.target.value)}
-    className="w-full border border-gray-300 dark:border-gray-600 px-3 py-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-  />
-
-  <div className="flex gap-2">
-    <button
-      onClick={handleSubmit}
-      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
-    >
-      {loading
-        ? 'Menyimpan...'
-        : editId
-        ? 'Update'
-        : 'Tambah'}
-    </button>
-
-    {editId && (
-      <button
-        onClick={resetForm}
-        className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg transition"
-      >
-        Batal
-      </button>
-    )}
-  </div>
-
-</div>
-
-
+          {editId && (
+            <button
+              onClick={resetForm}
+              className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg transition text-sm"
+            >
+              Batal
+            </button>
+          )}
+        </div>
+      </div>
 
       {/* LIST */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow dark:shadow-lg border border-gray-200 dark:border-gray-700">
-        {paginatedData.map((item) => (
-          <div key={item.id} className="border border-gray-200 dark:border-gray-600 p-3 rounded mb-3 flex justify-between bg-gray-50 dark:bg-gray-700">
+      <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm sm:shadow-lg border border-gray-200 dark:border-gray-700">
+        {paginatedData.length === 0 ? (
+          <p className="text-center text-gray-500 dark:text-gray-400 py-6 text-sm">
+            Tidak ada laporan ditemukan.
+          </p>
+        ) : (
+          paginatedData.map((item) => (
+            <div key={item.id} className="border border-gray-200 dark:border-gray-600 p-3 sm:p-4 rounded-xl mb-3 flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-gray-50 dark:bg-gray-700/50">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-blue-600 dark:text-blue-400 text-xs sm:text-sm">{item.tanggal}</p>
+                <p className="text-gray-800 dark:text-gray-100 font-medium break-words mt-0.5 text-sm sm:text-base">{item.kegiatan}</p>
+                {item.keterangan && (
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 break-words mt-1">{item.keterangan}</p>
+                )}
+                {item.foto && (
+                  <a href={item.foto} target="_blank" rel="noopener noreferrer" className="inline-block text-blue-600 dark:text-blue-400 hover:underline text-xs mt-1.5 font-medium">
+                    Lihat Foto ↗
+                  </a>
+                )}
+              </div>
 
-            <div>
-              <p className="font-semibold text-gray-900 dark:text-white">{item.tanggal}</p>
-              <p className="text-gray-700 dark:text-gray-200">{item.kegiatan}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{item.keterangan}</p>
+              <div className="flex items-center gap-1.5 self-end sm:self-center flex-shrink-0">
+                <button
+                  onClick={() => handleEdit(item)}
+                  className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+                  title="Edit"
+                >
+                  <Pencil size={18} />
+                </button>
 
-              {item.foto && (
-                <a href={item.foto} target="_blank" className="text-blue-600 text-sm">
-                  Lihat Foto
-                </a>
-              )}
+                <button
+                  onClick={() => handleDelete(item.id)}
+                  className="p-2 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/40 transition"
+                  title="Hapus"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
             </div>
-
-            <div className="flex gap-2">
-              <button onClick={() => handleEdit(item)}>
-                <Pencil size={18} />
-              </button>
-
-              <button onClick={() => handleDelete(item.id)}>
-                <Trash2 size={18} />
-              </button>
-            </div>
-
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       {/* PAGINATION */}
-      <div className="flex justify-between mt-4">
-        <button
-          onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
-          disabled={currentPage === 1}
-        >
-          Prev
-        </button>
+      {totalPages > 1 && (
+        <div className="flex justify-between items-center mt-4 text-sm text-gray-700 dark:text-gray-300 px-1">
+          <button
+            onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-3.5 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 disabled:opacity-40 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+          >
+            Prev
+          </button>
 
-        <span>Page {currentPage} / {totalPages}</span>
+          <span className="font-medium">Halaman {currentPage} / {totalPages}</span>
 
-        <button
-          onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
-          disabled={currentPage === totalPages}
-        >
-          Next
-        </button>
-      </div>
+          <button
+            onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className="px-3.5 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 disabled:opacity-40 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+          >
+            Next
+          </button>
+        </div>
+      )}
 
       {/* EXPORT */}
       {showExport && siswa && (

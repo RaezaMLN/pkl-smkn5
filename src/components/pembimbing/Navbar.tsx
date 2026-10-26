@@ -20,16 +20,16 @@ export default function Navbar({ pembimbing }: { pembimbing?: any }) {
       <motion.header
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="flex justify-between items-center bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-3 shadow-sm ms-16"
+        className="flex justify-between items-center bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 py-3 shadow-sm sticky top-0 z-30"
       >
-        <div className="text-xl font-semibold text-blue-700 dark:text-white">
+        <div className="text-lg sm:text-xl font-semibold text-blue-700 dark:text-white">
           Dashboard Pembimbing
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           {/* Nama pembimbing */}
           {pembimbing && (
-            <span className="text-sm text-gray-600 dark:text-gray-300">
+            <span className="hidden sm:inline text-sm text-gray-600 dark:text-gray-300">
               {pembimbing.nama}
             </span>
           )}

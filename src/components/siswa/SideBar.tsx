@@ -1,67 +1,129 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { Menu, X, Home, FilePlus2, Send, User } from 'lucide-react';
+import { Menu, X, Home, FilePlus2, Send, FileText, User } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const navItems = [
-  { label: 'Dashboard', href: '/siswa/dashboard', icon: <Home size={20} /> },
-  { label: 'Daftar PKL', href: '/siswa/pendaftaran', icon: <FilePlus2 size={20} /> },
-  { label: 'Ajukan Tempat PKL', href: '/siswa/pengajuan', icon: <Send size={20} /> },
-  // { label: 'Tempat PKL', href: '/siswa/dudi', icon: <FilePlus2 size={20} /> },
-  { label: 'Laporan', href: '/siswa/laporan', icon: <User size={20} /> },
-  { label: 'Profil', href: '/siswa/profil', icon: <User size={20} /> }
-
+  { label: 'Dashboard', shortLabel: 'Dashboard', href: '/siswa/dashboard', icon: Home },
+  { label: 'Daftar PKL', shortLabel: 'Daftar', href: '/siswa/pendaftaran', icon: FilePlus2 },
+  { label: 'Ajukan Tempat PKL', shortLabel: 'Ajukan', href: '/siswa/pengajuan', icon: Send },
+  { label: 'Laporan', shortLabel: 'Laporan', href: '/siswa/laporan', icon: FileText },
+  { label: 'Profil', shortLabel: 'Profil', href: '/siswa/profil', icon: User },
 ];
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(true);
+  const pathname = usePathname();
+
+  const isActive = (href: string) => {
+    if (href === '/siswa/dashboard') {
+      return pathname === '/siswa/dashboard';
+    }
+    return pathname.startsWith(href);
+  };
 
   return (
-    <motion.aside
-      animate={{ width: isOpen ? 240 : 72 }}
-      className={`h-screen bg-gradient-to-b from-blue-700 to-blue-800 dark:from-gray-800 dark:to-gray-900 text-white px-4 py-6 shadow-lg transition-all duration-300 fixed md:relative z-40 flex flex-col`}
-    >
-      <div className="flex items-center justify-between mb-8">
-        {isOpen && (
-          <motion.h2
-            initial={false}
-            animate={{ opacity: isOpen ? 1 : 0 }}
-            className="text-xl font-bold tracking-wide whitespace-nowrap"
+    <>
+      {/* ================================================================
+          DESKTOP SIDEBAR (md ke atas)
+      ================================================================= */}
+      <motion.aside
+        animate={{ width: isOpen ? 240 : 72 }}
+        className="hidden md:flex flex-col h-screen sticky top-0 bg-gradient-to-b from-blue-700 to-blue-800 dark:from-gray-800 dark:to-gray-900 text-white px-4 py-6 shadow-lg transition-all duration-300 z-40"
+      >
+        <div className="flex items-center justify-between mb-8">
+          {isOpen && (
+            <motion.h2
+              initial={false}
+              animate={{ opacity: isOpen ? 1 : 0 }}
+              className="text-xl font-bold tracking-wide whitespace-nowrap"
+            >
+              E-PKL Siswa
+            </motion.h2>
+          )}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="ml-auto text-white p-1 rounded hover:bg-blue-600 dark:hover:bg-gray-700 transition"
+            aria-label="Toggle Sidebar"
           >
-            E-PKL Siswa
-          </motion.h2>
-        )}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="ml-auto text-white p-1 rounded hover:bg-blue-600 dark:hover:bg-gray-700 transition"
-        >
-          {isOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
-      </div>
+            {isOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
 
-      <nav className="flex flex-col gap-3 mt-2">
-        {navItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-blue-600 dark:hover:bg-gray-700 transition-colors group"
-          >
-            <div>{item.icon}</div>
-            {isOpen && (
-              <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="text-sm font-medium whitespace-nowrap"
+        <nav className="flex flex-col gap-2 mt-2">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.href);
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group ${
+                  active
+                    ? 'bg-blue-600 dark:bg-blue-600 text-white shadow-sm'
+                    : 'text-blue-100 hover:bg-blue-600/70 dark:text-gray-300 dark:hover:bg-gray-700'
+                }`}
               >
-                {item.label}
-              </motion.span>
-            )}
-          </Link>
-        ))}
+                <div className="flex-shrink-0">
+                  <Icon size={20} />
+                </div>
+                {isOpen && (
+                  <motion.span
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="text-sm font-medium whitespace-nowrap"
+                  >
+                    {item.label}
+                  </motion.span>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+      </motion.aside>
+
+      {/* ================================================================
+          MOBILE STICKY BOTTOM NAVIGATION (< md)
+      ================================================================= */}
+      <nav
+        aria-label="Mobile Navigation"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 px-2 py-1.5 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]"
+      >
+        <div className="flex items-center justify-around max-w-lg mx-auto">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.href);
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all duration-200 ${
+                  active
+                    ? 'text-blue-600 dark:text-blue-400 font-semibold'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium'
+                }`}
+              >
+                <div
+                  className={`p-1 rounded-lg transition-colors ${
+                    active ? 'bg-blue-50 dark:bg-blue-950/60' : ''
+                  }`}
+                >
+                  <Icon size={20} />
+                </div>
+                <span className="text-[10px] mt-0.5 tracking-tight truncate max-w-[64px]">
+                  {item.shortLabel}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
       </nav>
-    </motion.aside>
+    </>
   );
 }
