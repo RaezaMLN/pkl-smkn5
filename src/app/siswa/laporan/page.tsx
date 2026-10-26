@@ -83,7 +83,16 @@ export default function LaporanSiswaPage() {
       ...doc.data()
     }));
 
-    setLaporan(data);
+    // Urutkan default: tanggal terbaru -> terlama
+    const sortedData = data.sort((a: any, b: any) => {
+      const dateCompare = (b.tanggal || '').localeCompare(a.tanggal || '');
+      if (dateCompare !== 0) return dateCompare;
+      const timeB = b.createdAt?.toMillis?.() || (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : 0);
+      const timeA = a.createdAt?.toMillis?.() || (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : 0);
+      return timeB - timeA;
+    });
+
+    setLaporan(sortedData);
   };
 
   // 🔥 AMBIL PERUSAHAAN
@@ -140,13 +149,12 @@ export default function LaporanSiswaPage() {
     );
   }
   if(sortBy === 'terlama'){
-
-    return a.tanggal.localeCompare(
-      b.tanggal
+    return (a.tanggal || '').localeCompare(
+      b.tanggal || ''
     );
   }
-  return b.tanggal.localeCompare(
-    a.tanggal
+  return (b.tanggal || '').localeCompare(
+    a.tanggal || ''
   );
 });
 
@@ -444,6 +452,7 @@ useEffect(() => {
             laporan,
             perusahaanNama
           }}
+          defaultSort={sortBy === 'terlama' ? 'terlama' : 'terbaru'}
           onClose={() => setShowExport(false)}
         />
       )}

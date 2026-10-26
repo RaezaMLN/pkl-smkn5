@@ -6,9 +6,12 @@ import PizZip from 'pizzip';
 import Docxtemplater from 'docxtemplater';
 import { Download, X } from 'lucide-react';
 
-export default function ExportModal({ siswa, onClose }: any) {
+export default function ExportModal({ siswa, onClose, defaultSort = 'terlama' }: any) {
 
-  const [bulan, setBulan] = useState(6);
+  const [bulan, setBulan] = useState(new Date().getMonth());
+  const [urutan, setUrutan] = useState<'terbaru' | 'terlama'>(
+    defaultSort === 'terbaru' ? 'terbaru' : 'terlama'
+  );
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -19,19 +22,43 @@ export default function ExportModal({ siswa, onClose }: any) {
 
   // 🔥 FORMAT TANGGAL
   const formatTanggal = (tgl: string) => {
-    return new Date(tgl).toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    });
+    if (!tgl) return '-';
+    const dateObj = tgl.includes('T') ? new Date(tgl) : new Date(`${tgl}T00:00:00`);
+    return isNaN(dateObj.getTime())
+      ? tgl
+      : dateObj.toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        });
   };
 
-  // 🔥 FILTER BULAN
+  // 🔥 FILTER BULAN & SORT SESUAI PILIHAN
   const filterByMonth = () => {
-    return siswa.laporan.filter((l: any) => {
-      const date = new Date(l.tanggal);
-      return date.getMonth() === bulan;
-    });
+    if (!siswa?.laporan) return [];
+
+    return (siswa.laporan as any[])
+      .filter((l: any) => {
+        if (!l.tanggal) return false;
+        const parts = l.tanggal.split('-');
+        const itemMonth =
+          parts.length >= 2
+            ? parseInt(parts[1], 10) - 1
+            : new Date(l.tanggal).getMonth();
+        return itemMonth === bulan;
+      })
+      .sort((a: any, b: any) => {
+        const dateCompare =
+          urutan === 'terlama'
+            ? (a.tanggal || '').localeCompare(b.tanggal || '')
+            : (b.tanggal || '').localeCompare(a.tanggal || '');
+
+        if (dateCompare !== 0) return dateCompare;
+
+        const timeB = b.createdAt?.toMillis?.() || (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : 0);
+        const timeA = a.createdAt?.toMillis?.() || (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : 0);
+        return urutan === 'terlama' ? timeA - timeB : timeB - timeA;
+      });
   };
 
   // 🔥 EXPORT DOCX
@@ -93,38 +120,61 @@ export default function ExportModal({ siswa, onClose }: any) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
+    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50 p-4">
 
-      <div className="bg-white p-6 rounded-xl w-full max-w-sm shadow-xl">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl w-full max-w-sm shadow-xl border border-gray-200 dark:border-gray-700">
 
         {/* HEADER */}
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
             Export Jurnal Bulanan
           </h2>
 
-          <button onClick={onClose}>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          >
             <X size={18} />
           </button>
         </div>
 
         {/* ERROR */}
         {errorMsg && (
-          <div className="bg-red-100 text-red-700 p-2 rounded mb-3 text-sm">
+          <div className="bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 p-2.5 rounded-lg mb-3 text-sm border border-red-200 dark:border-red-800">
             {errorMsg}
           </div>
         )}
 
         {/* PILIH BULAN */}
-        <select
-          value={bulan}
-          onChange={(e) => setBulan(Number(e.target.value))}
-          className="w-full border p-2 rounded mb-4"
-        >
-          {bulanList.map((b, i) => (
-            <option key={i} value={i}>{b}</option>
-          ))}
-        </select>
+        <div className="mb-3">
+          <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Pilih Bulan:
+          </label>
+          <select
+            value={bulan}
+            onChange={(e) => setBulan(Number(e.target.value))}
+            className="w-full border border-gray-300 dark:border-gray-600 p-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+          >
+            {bulanList.map((b, i) => (
+              <option key={i} value={i}>{b}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* PILIH URUTAN TANGGAL */}
+        <div className="mb-4">
+          <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Urutan Tanggal:
+          </label>
+          <select
+            value={urutan}
+            onChange={(e) => setUrutan(e.target.value as 'terbaru' | 'terlama')}
+            className="w-full border border-gray-300 dark:border-gray-600 p-2 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+          >
+            <option value="terlama">Tanggal Terlama ke Terbaru (1 s/d 31)</option>
+            <option value="terbaru">Tanggal Terbaru ke Terlama (31 s/d 1)</option>
+          </select>
+        </div>
 
         {/* BUTTON */}
         <div className="flex flex-col gap-3">
@@ -140,7 +190,7 @@ export default function ExportModal({ siswa, onClose }: any) {
 
           <button
             onClick={onClose}
-            className="bg-gray-400 text-white py-2 rounded hover:bg-gray-500"
+            className="bg-gray-400 hover:bg-gray-500 text-white py-2 rounded transition"
           >
             Tutup
           </button>
